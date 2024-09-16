@@ -4,6 +4,10 @@ import WaiterSignup from './WaiterSignup';
 import { div } from 'framer-motion/client';
 import OwnerSignup from './OwnerSignup';
 import CustomerSignup from './CustomerSignup';
+import OTPVerify from './OtpVerify';
+import Signin from './Signin';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { Signin2 } from './States';
 
 const ProfileCard = ({ icon: Icon, title, description, onClick }) => (
     <a href="#continue">  <div
@@ -24,6 +28,8 @@ const SignupModal = ({ isOpen, onClose }) => {
   const [showOwnerSignup, setShowOwnerSignup] = useState(false);
   const [showCustomerSignup, setShowCustomerSignup] = useState(false);
   const [showOtpVerify, setShowOtpVerify] = useState(false);
+  const signin = useRecoilValue(Signin2)
+  const setSignin = useSetRecoilState(Signin2)
 
   const profiles = [
     {
@@ -43,15 +49,20 @@ const SignupModal = ({ isOpen, onClose }) => {
     }
   ];
 
-  // If `showWaiterSignup` is true, show the WaiterSignup component
     if (showWaiterSignup) {
-        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><WaiterSignup setShowWaiterSignup={setShowWaiterSignup} onClose={onClose} /></div>
+        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><WaiterSignup setShowWaiterSignup={setShowWaiterSignup}  setShowOtpVerify={setShowOtpVerify} onClose={onClose}/></div>
       }
       else if (showOwnerSignup){
-        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OwnerSignup setShowOwnerSignup={setShowOwnerSignup} onClose={onClose} /></div>
+        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OwnerSignup setShowOwnerSignup={setShowOwnerSignup} setShowOtpVerify={setShowOtpVerify} onClose={onClose} /></div>
       }
       else if (showCustomerSignup){
-        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><CustomerSignup setShowCustomerSignup={setShowCustomerSignup} onClose={onClose} /></div>
+        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><CustomerSignup setShowCustomerSignup={setShowCustomerSignup} setShowOtpVerify={setShowOtpVerify} onClose={onClose} /></div>
+      }
+      else if (showOtpVerify){
+        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OTPVerify setShowOtpVerify={setShowOtpVerify} /></div>
+      }
+      else if (signin){
+        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><Signin  setSignin={setSignin} /></div>
       }
 
   if (!isOpen) return null;

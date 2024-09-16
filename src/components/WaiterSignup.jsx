@@ -2,13 +2,15 @@ import React, { useRef } from 'react';
 import axios from "axios";
 import { useRecoilState } from 'recoil';
 import { Signin, Signup, Otp, OtpPage } from './States';
-
-function WaiterSignup({ setShowWaiterSignup }) {
+import { Signin2 } from './States';
+import { useSetRecoilState } from 'recoil';
+function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify }) {
+  const setSignin = useSetRecoilState(Signin2)
     const firstNameRef = useRef();
     const lastNameRef = useRef();
     const emailRef = useRef();
     const aadhaarRef = useRef(); // Changed ref to aadhaarRef
-    const upiRef = useRef(); // Added ref for UPI ID
+    const upiRef = useRef(); // Added ref for UPI ID  
     const genderRef = useRef();
     const ageDayRef = useRef(); // Added ref for date of birth
     const ageMonthRef = useRef();
@@ -20,21 +22,26 @@ function WaiterSignup({ setShowWaiterSignup }) {
             alert("Select gender properly");
             return;
         }
+        else{
+          setShowOtpVerify(true)
+          setShowWaiterSignup(false)
+        }
+        
 
-        axios.post("https://apti-server.tejascodes.com/otp", {
-            firstName: firstNameRef.current.value,
-            lastName: lastNameRef.current.value,
-            email: emailRef.current.value,
-            aadhaar: aadhaarRef.current.value,
-            upi: upiRef.current.value, 
-            age: `${ageDayRef.current.value}-${ageMonthRef.current.value}-${ageYearRef.current.value}`,
-            gender: genderRef.current.value
-        })
-        .then((res) => {
-        })
-        .catch((e) => {
-            alert(e.response.data.msg);
-        });
+        // axios.post("https://apti-server.tejascodes.com/otp", {
+        //     firstName: firstNameRef.current.value,
+        //     lastName: lastNameRef.current.value,
+        //     email: emailRef.current.value,
+        //     aadhaar: aadhaarRef.current.value,
+        //     upi: upiRef.current.value, 
+        //     age: `${ageDayRef.current.value}-${ageMonthRef.current.value}-${ageYearRef.current.value}`,
+        //     gender: genderRef.current.value
+        // })
+        // .then((res) => {
+        // })
+        // .catch((e) => {
+        //     alert(e.response.data.msg);
+        // });
     }
 
     return (
@@ -89,7 +96,7 @@ function WaiterSignup({ setShowWaiterSignup }) {
             </form>
             <div className='flex justify-center text-sm text-slate-500 mt-4'>
                 <div>Already have an account?</div>
-                <button onClick={() => { setShowWaiterSignup(false); }} className='text-[#229799] font-semibold ml-1'>Sign In</button>
+                <button onClick={() => { setShowWaiterSignup(false); setSignin(true) }} className='text-[#229799] font-semibold ml-1'>Sign In</button>
             </div>
         </div>
     );

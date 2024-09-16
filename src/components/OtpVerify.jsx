@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 
-export default function OTPVerify({ setShowOTPVerify }) {
+export default function OTPVerify({ setShowOtpVerify }) {
   const [timer, setTimer] = useState(30)
   const [canResend, setCanResend] = useState(false)
 
@@ -17,7 +17,7 @@ export default function OTPVerify({ setShowOTPVerify }) {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [timer])
 
   const handleResendOTP = () => {
     // Resend OTP logic here
@@ -34,7 +34,7 @@ export default function OTPVerify({ setShowOTPVerify }) {
     <div className='bg-white animate-popup w-96 h-[300px] justify-self-center shadow-lg rounded-lg md:px-7 px-4 py-8 transform transition-transform duration-300 scale-95'>
       <div className='flex justify-between items-center'>
         <h1 className='text-2xl font-medium'>Verify OTP</h1>
-        <X className="cursor-pointer" size={24} onClick={() => setShowOTPVerify(false)} />
+        <X className="cursor-pointer" size={24} onClick={()=>{setShowOtpVerify(false)}} />
       </div>
       <div className='border mt-2'></div>
       <form onSubmit={handleVerifyOTP} className="space-y-4 mt-4">

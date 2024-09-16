@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 
-export default function Signin({ setShowSignin, setToSignup }) {
+export default function Signin({setSignin}) {
   const [timer, setTimer] = useState(0)
   const [canGetOTP, setCanGetOTP] = useState(true)
   const [mobileNumber, setMobileNumber] = useState('')
@@ -29,12 +29,13 @@ export default function Signin({ setShowSignin, setToSignup }) {
     e.preventDefault()
     // Verify OTP logic here
   }
+//   if (!isOpen) return null;
 
   return (
-    <div className='bg-white animate-popup w-96 h-[350px] justify-self-center shadow-lg rounded-lg md:px-7 px-4 py-8 transform transition-transform duration-300 scale-95'>
+    <div className='bg-white animate-popup w-96 h-[300px] justify-self-center shadow-lg rounded-lg md:px-7 px-4 py-8 transform transition-transform duration-300 scale-95'>
       <div className='flex justify-between items-center'>
         <h1 className='text-2xl font-medium'>Sign In</h1>
-        <X className="cursor-pointer" size={24} onClick={() => setShowSignin(false)} />
+        <X className="cursor-pointer" size={24} onClick={() => setSignin(false)} />
       </div>
       <div className='border mt-2'></div>
       <form onSubmit={handleVerifyOTP} className="space-y-4 mt-4">
@@ -60,10 +61,6 @@ export default function Signin({ setShowSignin, setToSignup }) {
         <input type="text" className='w-full h-8 border-2 border-gray-300 placeholder:text-gray-500 pl-3 rounded-md text-sm' placeholder='Enter OTP' required/>
         <button type='submit' className='flex text-white text-lg bg-[#229799] hover:bg-[#1b7b7d] w-full py-2 rounded-md transition delay-100 hover:shadow-md justify-center'>Verify</button>
       </form>
-      <div className='flex justify-center text-sm text-slate-500 mt-4'>
-        Don't have an account?
-        <div onClick={() => {setToSignup(true); setShowSignin(false)}} className='ml-1 text-blue-600 cursor-pointer'>Sign up</div>
-      </div>
     </div>
   )
-}
+}   

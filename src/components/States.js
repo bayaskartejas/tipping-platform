@@ -23,6 +23,10 @@ export const Signup = atom({
     key:"OtpAlert",
     default: false  
   })
+  export const Signin2 = atom({
+    key:"Signin",
+    default: false  
+  })
   export const SelectedProfile = atom({
     key: 'selectedProfile', // unique ID (with respect to other atoms/selectors)
     default: null, // default value (aka initial value)

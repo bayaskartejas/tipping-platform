@@ -1,15 +1,17 @@
 import { useState, useRef } from 'react'
 import { Camera, X } from 'lucide-react'
-
-export default function OwnerSignup({ setShowOwnerSignup, setToSignin }) {
+import { Signin2 } from './States';
+import { useSetRecoilState } from 'recoil';
+export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify }) {
   const [storeLogo, setStoreLogo] = useState(null)
   const [ownerSelfie, setOwnerSelfie] = useState(null)
   const fileInputRefLogo = useRef(null)
   const fileInputRefSelfie = useRef(null)
-
+  const setSignin = useSetRecoilState(Signin2)
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Handle form submission
+    setShowOtpVerify(true)
+    setShowOwnerSignup(false)
   }
 
   const handleFileChange = (e, setImage) => {
@@ -110,7 +112,7 @@ export default function OwnerSignup({ setShowOwnerSignup, setToSignin }) {
       </form>
       <div className='flex justify-center text-sm text-slate-500 mt-4'>
         Already have an account?
-        <div onClick={() => {setToSignin(true); setShowOwnerSignup(false)}} className='ml-1 text-blue-600 cursor-pointer'>Sign in</div>
+        <div onClick={() => {setSignin(true); setShowOwnerSignup(false)}} className='ml-1 text-blue-600 cursor-pointer'>Sign in</div>
       </div>
     </div>
   )

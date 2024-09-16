@@ -1,6 +1,8 @@
 import { X } from 'lucide-react';
-
-export default function CustomerSignup({ setShowCustomerSignup, setToSignin, setShowOtpVerify }) {
+import { Signin2 } from './States';
+import { useSetRecoilState } from 'recoil';
+export default function CustomerSignup({ setShowCustomerSignup, setShowOtpVerify }) {
+const setSignin = useSetRecoilState(Signin2)
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission
@@ -27,7 +29,7 @@ export default function CustomerSignup({ setShowCustomerSignup, setToSignin, set
       </form>
       <div className='flex justify-center text-sm text-slate-500 mt-4'>
         Already have an account?
-        <div onClick={() => {setToSignin(true); setShowCustomerSignup(false)}} className='ml-1 text-blue-600 cursor-pointer'>Sign in</div>
+        <div onClick={() => {setSignin(true); setShowCustomerSignup(false)}} className='ml-1 text-blue-600 cursor-pointer'>Sign in</div>
       </div>
     </div>
   );
