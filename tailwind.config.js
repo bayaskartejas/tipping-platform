@@ -6,6 +6,7 @@ export default {
   ],
   theme: {
     extend: {
+      scrollBehavior: ['responsive'],
       fontFamily: {
         poppins: ["Poppins", "sans-serif"],
         sans: ['Helvetica', 'Arial', 'sans-serif'],
