@@ -10,7 +10,7 @@ const TestimonialCard = ({ review }) => (
       <div>
         <div className="flex">
           {[...Array(5)].map((_, i) => (
-            <Star key={i} className="w-5 h-5 text-[#D9FF30]" fill="#D9FF30" />
+            <Star key={i} className="w-5 h-5 text-yellow-400" fill="#FACC15" />
           ))}
         </div>
       </div>
@@ -26,7 +26,7 @@ const TestimonialCard = ({ review }) => (
 const TestimonialSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const sliderRef = useRef(null);
-
+  
   const reviews = [
     {
       name: "Emma Thompson",
@@ -83,16 +83,42 @@ const TestimonialSlider = () => {
       slider.scrollLeft = scrollLeft - walk;
     };
 
+    const handleTouchStart = (e) => {
+      isDown = true;
+      startX = e.touches[0].pageX - slider.offsetLeft;
+      scrollLeft = slider.scrollLeft;
+    };
+
+    const handleTouchEnd = () => {
+      isDown = false;
+    };
+
+    const handleTouchMove = (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.touches[0].pageX - slider.offsetLeft;
+      const walk = (x - startX) * 2;
+      slider.scrollLeft = scrollLeft - walk;
+    };
+
     slider.addEventListener('mousedown', handleMouseDown);
     slider.addEventListener('mouseleave', handleMouseLeave);
     slider.addEventListener('mouseup', handleMouseUp);
     slider.addEventListener('mousemove', handleMouseMove);
+
+    slider.addEventListener('touchstart', handleTouchStart);
+    slider.addEventListener('touchend', handleTouchEnd);
+    slider.addEventListener('touchmove', handleTouchMove);
 
     return () => {
       slider.removeEventListener('mousedown', handleMouseDown);
       slider.removeEventListener('mouseleave', handleMouseLeave);
       slider.removeEventListener('mouseup', handleMouseUp);
       slider.removeEventListener('mousemove', handleMouseMove);
+
+      slider.removeEventListener('touchstart', handleTouchStart);
+      slider.removeEventListener('touchend', handleTouchEnd);
+      slider.removeEventListener('touchmove', handleTouchMove);
     };
   }, []);
 
@@ -107,7 +133,7 @@ const TestimonialSlider = () => {
   useEffect(() => {
     if (sliderRef.current) {
       sliderRef.current.scrollTo({
-        left: currentIndex * 336,
+        left: currentIndex * 336, // Adjust this based on your card width
         behavior: 'smooth'
       });
     }
@@ -120,24 +146,13 @@ const TestimonialSlider = () => {
       </h2>
       <div 
         ref={sliderRef}
-        className="flex overflow-x-hidden snap-x snap-mandatory "
+        className="flex overflow-x-auto snap-x snap-mandatory"
         style={{ scrollBehavior: 'smooth' }}
       >
         {reviews.map((review, index) => (
           <div key={index} className="snap-center">
             <TestimonialCard review={review} />
           </div>
-        ))}
-      </div>
-      <div className="flex justify-center mt-6">
-        {reviews.map((_, index) => (
-          <button
-            key={index}
-            className={`h-2 w-2 rounded-full mx-1 ${
-              index === currentIndex ? 'bg-[#229799]' : 'bg-gray-300'
-            }`}
-            onClick={() => setCurrentIndex(index)}
-          />
         ))}
       </div>
     </div>

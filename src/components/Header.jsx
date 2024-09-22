@@ -13,13 +13,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
         <div className="flex items-center">
-          <svg className="w-8 h-8 mr-2" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="32" height="32" fill="#229799"/>
-            <rect x="4" y="4" width="8" height="8" fill="white"/>
-            <rect x="20" y="4" width="8" height="8" fill="white"/>
-            <rect x="4" y="20" width="8" height="8" fill="white"/>
-            <rect x="20" y="20" width="8" height="8" fill="white"/>
-          </svg>
+        <img src="/placeholder-logo.png" alt="Logo" className="h-8 mr-2" />
           <span className="text-2xl font-bold">TIPNEX</span>
         </div>
         <nav className="hidden md:flex space-x-6">

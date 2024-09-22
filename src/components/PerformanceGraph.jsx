@@ -38,7 +38,7 @@ export default function PerformanceGraph() {
       {
         label: 'Daily Tips',
         data: pastWeekData.map((data) => data.tips),
-        borderColor: '#48CFCB',
+        borderColor: '#229799',
         backgroundColor: 'rgba(72, 207, 203, 0.5)',
         tension: 0.4,
       },

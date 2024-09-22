@@ -9,10 +9,10 @@ const Hero = () => {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center">
         <div className="md:w-1/2 mb-8 md:mb-0">
           <h1 className="text-4xl font-bold mb-4">
-            Elevate staff satisfaction with the ultimate <span className="text-[#229799]">digital gratuity platform</span> for eateries and taverns
+            Elevate staff satisfaction with the ultimate <span className="text-[#229799]">digital gratuity platform</span> for restaurants and retail.
           </h1>
           <p className="text-gray-600 mb-6">
-            EasyTip's innovative digital gratuity system streamlines and allocates tips equitably and openly for your complete restaurant or pub staff.
+            TipNex's innovative digital gratuity system streamlines and allocates tips equitably and openly for your complete restaurant or pub staff.
           </p>
           <button 
             className="bg-[#229799] text-white px-6 py-3 rounded-md hover:bg-[#1b7a7c] transition-colors duration-300 text-lg"
@@ -22,7 +22,7 @@ const Hero = () => {
           </button>
         </div>
         <div className="md:w-1/2 flex justify-end">
-          <img src="/placeholder-app-screenshot.png" alt="EasyTip App Screenshots" className="max-w-full h-auto" />
+          <img src="/placeholder-app-screenshot.png" alt="TipNex App Screenshots" className="max-w-full h-auto" />
         </div>
       </div>
       <SignupModal 
