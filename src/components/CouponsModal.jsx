@@ -38,7 +38,6 @@ export default function CouponsModal({ onClose }) {
 function CouponCard({ coupon }) {
   const [showCode, setShowCode] = useState(false)
 
-  // Function to generate random gradient with safe contrasting colors
   const getRandomGradient = () => {
     const gradients = [
       'from-pink-500 to-red-500',

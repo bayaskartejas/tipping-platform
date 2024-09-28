@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, ScanQrCode } from 'lucide-react';
 import SignupModal from './SignupModal';
 import { useRecoilState } from 'recoil';
 import { Signin2 } from './States';
@@ -22,7 +22,7 @@ const Header = () => {
           <a href="#" className="text-gray-600 hover:text-gray-900">Contact Us</a>
         </nav>
 
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-4"> 
           <button onClick={() => setIsSignupModalOpen(true)} className="bg-[#229799] text-white px-4 py-2 duration-200 rounded-md hover:bg-[#3DBFBD]">
             Sign up for free!
           </button>
@@ -32,8 +32,9 @@ const Header = () => {
             <ChevronDown size={16} />
           </div>
         </div>
+        
         <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {isMenuOpen ? <X size={24} /> : <div className="flex"><div className='mx-1 cursor-pointer'><ScanQrCode /></div><div className='mx-1'><Menu size={24} /></div></div>}
         </button>
       </div>
       {isMenuOpen && (
@@ -44,6 +45,7 @@ const Header = () => {
             <a href="#" className="text-gray-600 hover:text-gray-900">Contact Us</a>
           </nav>
           <div className="mt-4 space-y-2">
+          <ScanQrCode />
             <button onClick={() => setIsSignupModalOpen(true)} className="w-full bg-[#229799] text-white px-4 py-2 rounded-md hover:bg-[#3DBFBD]">
               Sign up for free!
             </button>

@@ -31,7 +31,7 @@ const staffData = [
   { id: 9, name: 'Ivy', rating: 4.1 },
   { id: 10, name: 'Jack', rating: 4.3 },
   { id: 11, name: 'Kim', rating: 3.9 },
-  { id: 12, name: 'Liam', rating: 4.1 },
+  { id: 12, name: 'Liam', rating: 4.1 }
 ];
 
 const getRandomDarkColor = () => {
