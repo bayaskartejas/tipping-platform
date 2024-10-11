@@ -59,7 +59,7 @@ const SignupModal = ({ isOpen, onClose }) => {
         return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><CustomerSignup setShowCustomerSignup={setShowCustomerSignup} setShowOtpVerify={setShowOtpVerify} onClose={onClose} /></div>
       }
       else if (showOtpVerify){
-        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OTPVerify setShowOtpVerify={setShowOtpVerify} /></div>
+        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OTPVerify setShowOtpVerify={setShowOtpVerify} email={sessionStorage.getItem("email")} /></div>
       }
       else if (signin){
         return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><Signin  setSignin={setSignin} /></div>

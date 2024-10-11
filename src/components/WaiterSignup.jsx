@@ -1,47 +1,49 @@
 import React, { useRef } from 'react';
-import axios from "axios";
-import { useRecoilState } from 'recoil';
-import { Signin, Signup, Otp, OtpPage } from './States';
-import { Signin2 } from './States';
+import axios from "axios"; // Ensure axios is imported
 import { useSetRecoilState } from 'recoil';
+import { Signin2 } from './States';
+
 function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify }) {
-  const setSignin = useSetRecoilState(Signin2)
+    const setSignin = useSetRecoilState(Signin2);
     const firstNameRef = useRef();
     const lastNameRef = useRef();
     const emailRef = useRef();
-    const aadhaarRef = useRef(); // Changed ref to aadhaarRef
-    const upiRef = useRef(); // Added ref for UPI ID  
+    const aadhaarRef = useRef();
+    const upiRef = useRef();  
     const genderRef = useRef();
-    const ageDayRef = useRef(); // Added ref for date of birth
+    const ageDayRef = useRef(); 
     const ageMonthRef = useRef();
     const ageYearRef = useRef();
+    const storeIdRef = useRef(); // Added ref for store ID
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
+
         if (genderRef.current.value === "Select") {
             alert("Select gender properly");
             return;
         }
-        else{
-          setShowOtpVerify(true)
-          setShowWaiterSignup(false)
-        }
-        
 
-        // axios.post("https://apti-server.tejascodes.com/otp", {
-        //     firstName: firstNameRef.current.value,
-        //     lastName: lastNameRef.current.value,
-        //     email: emailRef.current.value,
-        //     aadhaar: aadhaarRef.current.value,
-        //     upi: upiRef.current.value, 
-        //     age: `${ageDayRef.current.value}-${ageMonthRef.current.value}-${ageYearRef.current.value}`,
-        //     gender: genderRef.current.value
-        // })
-        // .then((res) => {
-        // })
-        // .catch((e) => {
-        //     alert(e.response.data.msg);
-        // });
+        // Gather the data to be sent to the backend
+        const waiterData = {
+            staff_name: `${firstNameRef.current.value} ${lastNameRef.current.value}`, // Combining first and last name
+            staff_email: emailRef.current.value,
+            staff_aadhaar: aadhaarRef.current.value,
+            staff_upi: upiRef.current.value,
+            staff_dob: `${ageYearRef.current.value}-${ageMonthRef.current.value}-${ageDayRef.current.value}`, // Format: YYYY-MM-DD
+            staff_gender: genderRef.current.value,
+        };
+
+        try {
+            // Send a POST request to the backend
+            const response = await axios.post('http://localhost:3000/api/staff', waiterData);
+            console.log('Staff created:', response.data);
+            setShowOtpVerify(true); // Show OTP verification component
+            setShowWaiterSignup(false); // Close the signup form
+        } catch (error) {
+            console.error('Error creating staff:', error);
+            alert('Failed to create staff. Please try again.');
+        }
     }
 
     return (

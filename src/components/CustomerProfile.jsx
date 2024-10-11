@@ -5,12 +5,13 @@ import TransactionHistory from './TransactionHistory'
 import CouponsModal from './CouponsModal'
 import VisitedRestaurantsModal from './VisitedRestaurantsModal'
 
-export default function CustomerProfile({ onGoBack }) {
+export default function CustomerProfile({ onGoBack, user }) {
   const [showCoupons, setShowCoupons] = useState(false)
   const [showVisitedRestaurants, setShowVisitedRestaurants] = useState(false)
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
+      <h1>Welcome, {user.name}</h1>
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center mb-4">
           <button

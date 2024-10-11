@@ -1,66 +1,131 @@
-import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-export default function Signin({setSignin}) {
-  const [timer, setTimer] = useState(0)
-  const [canGetOTP, setCanGetOTP] = useState(true)
-  const [mobileNumber, setMobileNumber] = useState('')
-  const [isOTPSent, setIsOTPSent] = useState(false)
+const Signin = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (timer > 0) {
-      const interval = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1)
-      }, 1000)
-      return () => clearInterval(interval)
-    } else if (timer === 0 && !canGetOTP) {
-      setCanGetOTP(true)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/auth/login', {
+        email,
+        password
+      });
+
+      // Assuming the API returns a token on successful login
+      const { token } = response.data;
+
+      // Store the token in localStorage
+      localStorage.setItem('token', token);
+
+      // Redirect to the dashboard or home page
+      navigate('/dashboard');
+    } catch (error) {
+      setError(error.response?.data?.message || 'An error occurred during sign in');
+    } finally {
+      setIsLoading(false);
     }
-  }, [timer, canGetOTP])
-
-  const handleGetOTP = () => {
-    // Get OTP logic here
-    setTimer(60)
-    setCanGetOTP(false)
-    setIsOTPSent(true)
-  }
-
-  const handleVerifyOTP = (e) => {
-    e.preventDefault()
-    // Verify OTP logic here
-  }
-//   if (!isOpen) return null;
+  };
 
   return (
-    <div className='bg-white animate-popup w-96 h-[300px] justify-self-center shadow-lg rounded-lg md:px-7 px-4 py-8 transform transition-transform duration-300 scale-95'>
-      <div className='flex justify-between items-center'>
-        <h1 className='text-2xl font-medium'>Sign In</h1>
-        <X className="cursor-pointer" size={24} onClick={() => setSignin(false)} />
-      </div>
-      <div className='border mt-2'></div>
-      <form onSubmit={handleVerifyOTP} className="space-y-4 mt-4">
-        <div className="flex space-x-2">
-          <input 
-            type="tel" 
-            className='w-3/4 h-8 border-2 border-gray-300 placeholder:text-gray-500 pl-3 rounded-md text-sm' 
-            placeholder='Mobile Number' 
-            value={mobileNumber}
-            onChange={(e) => setMobileNumber(e.target.value)}
-            required
-            disabled={!canGetOTP}
-          />
-          <button 
-            type='button' 
-            onClick={handleGetOTP} 
-            className={`w-1/4 text-sm ${canGetOTP ? 'bg-[#229799] text-white' : 'bg-gray-300 text-gray-500'} rounded-md`}
-            disabled={!canGetOTP}
-          >
-            {isOTPSent ? (timer > 0 ? `${timer}s` : 'Resend OTP') : 'Get OTP'}
-          </button>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
         </div>
-        <input type="text" className='w-full h-8 border-2 border-gray-300 placeholder:text-gray-500 pl-3 rounded-md text-sm' placeholder='Enter OTP' required/>
-        <button type='submit' className='flex text-white text-lg bg-[#229799] hover:bg-[#1b7b7d] w-full py-2 rounded-md transition delay-100 hover:shadow-md justify-center'>Verify</button>
-      </form>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <input type="hidden" name="remember" value="true" />
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email-address" className="sr-only">
+                Email address
+              </label>
+              <input
+                id="email-address"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                Remember me
+              </label>
+            </div>
+
+            <div className="text-sm">
+              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+                Forgot your password?
+              </a>
+            </div>
+          </div>
+
+          {error && (
+            <div className="text-red-500 text-sm mt-2">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                'Sign in'
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-  )
-}   
+  );
+};
+
+export default Signin;

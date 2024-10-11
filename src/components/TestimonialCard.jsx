@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Star } from 'lucide-react';
 
-const TestimonialCard = ({ review }) => (
-  <div className="bg-white p-6 rounded-lg shadow-md w-80 mx-4 flex flex-col">
+const TestimonialCard = ({ review, star }) => (
+  <div className="bg-white p-6 rounded-lg shadow-md sm:w-80 w-64 mx-4 flex flex-col">
     <div className="flex items-center mb-4">
       <div className="w-12 h-12 bg-gray-200 rounded-full mr-4 flex items-center justify-center">
         <span className="text-xl font-bold">{review.name[0]}</span>
       </div>
       <div>
         <div className="flex">
-          {[...Array(5)].map((_, i) => (
+          {[...Array(star)].map((_, i) => (
             <Star key={i} className="w-5 h-5 text-yellow-400" fill="#FACC15" />
           ))}
         </div>
@@ -31,27 +31,32 @@ const TestimonialSlider = () => {
     {
       name: "Emma Thompson",
       title: "Restaurant Manager",
-      text: "This app has revolutionized our tipping system. It's user-friendly and our staff loves the transparency it provides."
+      text: "This app has revolutionized our tipping system. It's user-friendly and our staff loves the transparency it provides.",
+      star: 4
     },
     {
       name: "Michael Chen",
       title: "Café Owner",
-      text: "Implementing this solution was a breeze. It's made tip distribution so much easier and fairer for everyone involved."
+      text: "Implementing this solution was a breeze. It's made tip distribution so much easier and fairer for everyone involved.",
+      star: 4
     },
     {
       name: "Sarah Johnson",
       title: "Bar Manager",
-      text: "Our customers appreciate the ease of tipping digitally. It's increased our overall tips and staff satisfaction."
+      text: "Our customers appreciate the ease of tipping digitally. It's increased our overall tips and staff satisfaction.",
+      star: 5
     },
     {
       name: "David Rodriguez",
       title: "Restaurant Owner",
-      text: "This platform has streamlined our operations and improved staff morale. Highly recommended for any hospitality business."
+      text: "This platform has streamlined our operations and improved staff morale. Highly recommended for any hospitality business.",
+      star: 3
     },
     {
       name: "Lisa Patel",
       title: "Hotel F&B Director",
-      text: "The analytics provided by this app have given us valuable insights into our service quality and staff performance."
+      text: "The analytics provided by this app have given us valuable insights into our service quality and staff performance.",
+      star: 5
     }
   ];
 
@@ -140,8 +145,8 @@ const TestimonialSlider = () => {
   }, [currentIndex]);
 
   return (
-    <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6">
-      <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-8">
+    <div className="max-w-7xl mx-auto sm:py-16 py-10 px-4 sm:px-6">
+      <h2 className="text-3xl font-extrabold text-white text-center mb-8">
         What Our Users Say
       </h2>
       <div 
@@ -151,7 +156,7 @@ const TestimonialSlider = () => {
       >
         {reviews.map((review, index) => (
           <div key={index} className="snap-center">
-            <TestimonialCard review={review} />
+            <TestimonialCard review={review} star={review.star} />
           </div>
         ))}
       </div>

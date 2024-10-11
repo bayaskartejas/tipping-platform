@@ -1,4 +1,5 @@
 import React from 'react';
+import noon from "../assets/noon.jpg"; // Import the background image
 import { Smartphone, DollarSign, Users, BarChart } from 'lucide-react';
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
@@ -34,10 +35,19 @@ const Features = () => {
   ];
 
   return (
-    <section id='whytipnex' className="py-16 px-6 bg-gray-100">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12">Why Choose TipNex?</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 ">
+    <section  id='whytipnex'
+      className="relative bg-cover bg-center bg-fixed min-h-screen py-16 px-6 flex items-center" 
+      style={{ backgroundImage: `url(${noon})` }} // Set the background image for parallax effect
+    >
+      {/* Optional overlay for better contrast */}
+      <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+
+      {/* Features Content */}
+      <div className="relative max-w-7xl mx-auto z-10">
+        <h2 className="text-4xl font-bold text-center text-white mb-12">
+          Why Choose TipNex?
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}

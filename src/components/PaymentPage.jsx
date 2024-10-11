@@ -15,12 +15,26 @@ const helpers = [
   { id: 10, name: 'Jack', rating: 4.0, photo: '/placeholder.svg?height=100&width=100', upiId: 'jack@upi' },
 ]
 
-export default function PaymentPage({ onGoBack }) {
+export default function PaymentPage({ onGoBack, user }) {
   const [billAmount, setBillAmount] = useState('')
   const [tipAmount, setTipAmount] = useState(0)
   const [customTip, setCustomTip] = useState('')
   const [selectedHelper, setSelectedHelper] = useState(null)
   const [currentHelperIndex, setCurrentHelperIndex] = useState(0)
+  const [helpers, setHelpers] = useState([])
+
+  useEffect(() => {
+    fetchHelpers()
+  }, [])  
+
+  const fetchHelpers = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/api/staff')
+      setHelpers(response.data)
+    } catch (error) {
+      console.error('Error fetching helpers:', error)
+    }
+  }
 
   const handleBillAmountChange = (e) => {
     const value = e.target.value
@@ -44,10 +58,12 @@ export default function PaymentPage({ onGoBack }) {
 
   const handlePayment = async () => {
     try {
-      const response = await axios.post('/api/process-payment', {
-        billAmount,
-        tipAmount,
-        helperUpiId: selectedHelper ? selectedHelper.upiId : null,
+      const response = await axios.post('http://localhost:3000/api/transaction', {
+        customerId: 1, // Replace with actual customer ID
+        storeId: 1, // Replace with actual store ID
+        staffId: selectedHelper ? selectedHelper.id : null,
+        bill: parseFloat(billAmount),
+        tip: parseFloat(tipAmount),
       })
       console.log('Payment processed:', response.data)
       // Handle successful payment (e.g., show success message, redirect)
@@ -69,6 +85,7 @@ export default function PaymentPage({ onGoBack }) {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
+      <h1>Welcome, {user.name}</h1>
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center mb-4">
           <button
