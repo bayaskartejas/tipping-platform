@@ -74,20 +74,23 @@ function App() {
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         <Route
           path="/helper"
-          element={user && user.role === 'staff' ? <HelperProfile user={user} /> : <Navigate to="/login" />}
+          // element={user && user.role === 'staff' ? <HelperProfile user={user} /> : <Navigate to="/login" />}
+          element={<HelperProfile/>}
         />
         <Route
           path="/customer"
-          element={user && user.role === 'customer' ? <CustomerProfile user={user} /> : <Navigate to="/login" />}
+          // element={user && user.role === 'customer' ? <CustomerProfile user={user} /> : <Navigate to="/login" />}
+          element={<CustomerProfile  user={user} />}
         />
         <Route
           path="/owner"
-          element={user && user.role === 'store' ? <OwnerProfile user={user} /> : <Navigate to="/login" />}
+          // element={user && user.role === 'store' ? <OwnerProfile user={user} /> : <Navigate to="/login" />}
+          element={<OwnerProfile  user={user} />}
         />
         <Route
           path="/pay/:storeId"
           // element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />}
-          element={<PaymentPage />}
+          element={<PaymentPage user={user}/>}
         />
       </Routes>
     </div>
