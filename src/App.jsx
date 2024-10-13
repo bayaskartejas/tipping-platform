@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import './App.css'
 import MainLanding from './components/MainLanding'
@@ -14,6 +14,7 @@ function App() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
+
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -73,7 +74,7 @@ function App() {
         <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         <Route
           path="/helper"
-          element={user && user.role === 'helper' ? <HelperProfile user={user} /> : <Navigate to="/login" />}
+          element={user && user.role === 'staff' ? <HelperProfile user={user} /> : <Navigate to="/login" />}
         />
         <Route
           path="/customer"
@@ -81,11 +82,12 @@ function App() {
         />
         <Route
           path="/owner"
-          element={user && user.role === 'owner' ? <OwnerProfile user={user} /> : <Navigate to="/login" />}
+          element={user && user.role === 'store' ? <OwnerProfile user={user} /> : <Navigate to="/login" />}
         />
         <Route
-          path="/pay"
-          element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />}
+          path="/pay/:storeId"
+          // element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />}
+          element={<PaymentPage />}
         />
       </Routes>
     </div>

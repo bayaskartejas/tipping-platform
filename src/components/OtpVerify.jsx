@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 import { SuccessAlert } from './Alerts';
 import LoadingOverlay from './LoadingOverlay';
 
-const OTPVerify = ({ setShowOtpVerify, email }) => {
+const OTPVerify = ({ setShowOtpVerify, userType }) => {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -23,8 +23,8 @@ const OTPVerify = ({ setShowOtpVerify, email }) => {
     // Automatically hide the overlay after it disappears
     setTimeout(() => setShowOverlay(false), 3000);
   };
-
-
+  let email = sessionStorage.getItem("email")
+  let storeId = sessionStorage.getItem("storeId")
   useEffect(() => {
     const interval = setInterval(() => {
       setTimer((prevTimer) => {
@@ -45,7 +45,17 @@ const OTPVerify = ({ setShowOtpVerify, email }) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/verify-otp', { email, otp });
+      let response; 
+      if (userType == "customer"){
+        response = await axios.post('http://localhost:3000/api/auth/verify-otp-customer', { email, otp });
+      }
+      else if (userType == "owner"){
+        response = await axios.post('http://localhost:3000/api/auth/verify-otp-owner', { email, otp });
+      }
+      else if (userType == "staff"){
+        response = await axios.post('http://localhost:3000/api/staff/verify', { email, otp, storeId });
+      }
+      
       const { token, user } = response.data;
 
       localStorage.setItem('token', token);
@@ -58,13 +68,12 @@ const OTPVerify = ({ setShowOtpVerify, email }) => {
       setTimeout(() => {
         setShowOtpVerify(false);
         setShowSuccess(false); // Hide the success alert after some time
-
-        if (user.role === 'customer') {
-          navigate('/customer-dashboard');
-        } else if (user.role === 'store') {
-          navigate('/store-dashboard');
-        } else if (user.role === 'staff') {
-          navigate('/staff-dashboard');
+        if (userType == 'customer') {
+          navigate('/customer');
+        } else if (userType == 'store') {
+          navigate('/owner');
+        } else if (userType == 'staff') {
+          navigate('/helper');
         } else {
           navigate('/dashboard');
         }
@@ -103,7 +112,7 @@ const OTPVerify = ({ setShowOtpVerify, email }) => {
           <SuccessAlert message={successMessage} onClose={() => setShowSuccess(false)} />
         </div>
       )}
-      <div className='bg-white animate-popup w-96 h-[300px] justify-self-center shadow-lg rounded-lg md:px-7 px-4 py-8 transform transition-transform duration-300 scale-95'>
+      <div className='bg-white animate-popup sm:w-96 sm:h-[300px] w-72 justify-self-center shadow-lg rounded-lg md:px-7 px-4 py-8 transform transition-transform duration-300 scale-95'>
         <div className='flex justify-between items-center'>
           <h1 className='text-2xl font-medium'>Verify OTP</h1>
           <X className="cursor-pointer" size={24} onClick={() => setShowOtpVerify(false)} />

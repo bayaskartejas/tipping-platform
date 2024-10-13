@@ -1,39 +1,46 @@
 import React, { useState, useEffect } from 'react'
-import { ChevronLeft, Star, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { ChevronLeft, Star, ChevronRight, DollarSign, CreditCard } from 'lucide-react'
 import axios from 'axios'
 
-const helpers = [
-  { id: 1, name: 'Alice', rating: 4.5, photo: '/placeholder.svg?height=100&width=100', upiId: 'alice@upi' },
-  { id: 2, name: 'Bob', rating: 4.2, photo: '/placeholder.svg?height=100&width=100', upiId: 'bob@upi' },
-  { id: 3, name: 'Charlie', rating: 4.8, photo: '/placeholder.svg?height=100&width=100', upiId: 'charlie@upi' },
-  { id: 4, name: 'Diana', rating: 4.3, photo: '/placeholder.svg?height=100&width=100', upiId: 'diana@upi' },
-  { id: 5, name: 'Eva', rating: 4.6, photo: '/placeholder.svg?height=100&width=100', upiId: 'eva@upi' },
-  { id: 6, name: 'Frank', rating: 4.1, photo: '/placeholder.svg?height=100&width=100', upiId: 'frank@upi' },
-  { id: 7, name: 'Grace', rating: 4.7, photo: '/placeholder.svg?height=100&width=100', upiId: 'grace@upi' },
-  { id: 8, name: 'Henry', rating: 4.4, photo: '/placeholder.svg?height=100&width=100', upiId: 'henry@upi' },
-  { id: 9, name: 'Ivy', rating: 4.9, photo: '/placeholder.svg?height=100&width=100', upiId: 'ivy@upi' },
-  { id: 10, name: 'Jack', rating: 4.0, photo: '/placeholder.svg?height=100&width=100', upiId: 'jack@upi' },
-]
-
-export default function PaymentPage({ onGoBack, user }) {
+export default function PaymentPage() {
+  const { storeId } = useParams()
+  const navigate = useNavigate()
   const [billAmount, setBillAmount] = useState('')
   const [tipAmount, setTipAmount] = useState(0)
   const [customTip, setCustomTip] = useState('')
   const [selectedHelper, setSelectedHelper] = useState(null)
   const [currentHelperIndex, setCurrentHelperIndex] = useState(0)
   const [helpers, setHelpers] = useState([])
+  const [store, setStore] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetchHelpers()
-  }, [])  
+    fetchStoreAndHelpers()
+  }, [storeId])
 
-  const fetchHelpers = async () => {
+  const fetchStoreAndHelpers = async () => {
+    setIsLoading(true)
+    setError(null)
     try {
-      const response = await axios.get('http://localhost:3000/api/staff')
-      setHelpers(response.data)
+      console.log('Fetching store and helpers for storeId:', storeId)
+      const storeResponse = await axios.get(`http://localhost:3000/api/store/${storeId}`)
+      console.log('Store data:', storeResponse.data)
+      setStore(storeResponse.data)
+      const helpersResponse = await axios.get(`http://localhost:3000/api/staff/store/${storeId}`)
+      console.log('Helpers data:', helpersResponse.data)
+      setHelpers(helpersResponse.data)
     } catch (error) {
-      console.error('Error fetching helpers:', error)
+      console.error('Error fetching store and helpers:', error)
+      setError('Failed to load data. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
+  }
+
+  const onGoBack = () => {
+    navigate('/')
   }
 
   const handleBillAmountChange = (e) => {
@@ -58,18 +65,20 @@ export default function PaymentPage({ onGoBack, user }) {
 
   const handlePayment = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/api/transaction', {
-        customerId: 1, // Replace with actual customer ID
-        storeId: 1, // Replace with actual store ID
+      const response = await axios.post('http://localhost:3000/api/transaction/upi-payment', {
+        storeId: parseInt(storeId),
         staffId: selectedHelper ? selectedHelper.id : null,
         bill: parseFloat(billAmount),
         tip: parseFloat(tipAmount),
+        customerName: '', // Add customer details if available
+        customerEmail: '',
+        customerPhone: '',
       })
-      console.log('Payment processed:', response.data)
-      // Handle successful payment (e.g., show success message, redirect)
+      console.log('Payment initiated:', response.data)
+      // Handle successful payment initiation (e.g., show QR code, redirect to UPI app)
     } catch (error) {
-      console.error('Payment failed:', error)
-      // Handle payment failure (e.g., show error message)
+      console.error('Payment initiation failed:', error)
+      // Handle payment initiation failure (e.g., show error message)
     }
   }
 
@@ -83,9 +92,16 @@ export default function PaymentPage({ onGoBack, user }) {
     setCurrentHelperIndex((prevIndex) => (prevIndex - 1 + helpers.length) % helpers.length)
   }
 
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>
+  }
+
+  if (error) {
+    return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-      <h1>Welcome, {user.name}</h1>
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center mb-4">
           <button
@@ -96,7 +112,7 @@ export default function PaymentPage({ onGoBack, user }) {
             <span className="ml-1">Go Back</span>
           </button>
         </div>
-        <ProfileHeader />
+        {store && <ProfileHeader store={store} />}
         <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
           <div>
             <label htmlFor="billAmount" className="block text-sm font-medium text-gray-700 mb-1">
@@ -104,14 +120,14 @@ export default function PaymentPage({ onGoBack, user }) {
             </label>
             <div className="relative mt-1 rounded-md shadow-sm">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <span className="text-gray-500 sm:text-sm">₹</span>
+                <DollarSign className="h-5 w-5 text-gray-400" />
               </div>
               <input
                 type="number"
                 name="billAmount"
                 id="billAmount"
-                className="block bg-slate-100 h-10 border-2 w-full rounded-md border-gray-300 pl-7 pr-12 focus:border-[#229799] focus:ring-[#229799] sm:text-sm"
-                placeholder="Bill Amount in ₹"
+                className="block w-full rounded-md border-gray-300 pl-10 pr-12 focus:border-[#229799] focus:ring-[#229799] sm:text-sm"
+                placeholder="Enter bill amount"
                 value={billAmount}
                 onChange={handleBillAmountChange}
                 min="0"
@@ -120,7 +136,7 @@ export default function PaymentPage({ onGoBack, user }) {
           </div>
           <div>
             <label htmlFor="tipAmount" className="block text-sm font-medium text-gray-700 mb-1">
-              Tip Amount: <strong className='font-semibold'>₹{tipAmount}</strong>
+              Tip Amount: ₹{tipAmount}
             </label>
             <input
               type="range"
@@ -130,12 +146,9 @@ export default function PaymentPage({ onGoBack, user }) {
               max="100"
               value={tipAmount}
               onChange={handleTipSliderChange}
-              className={`w-full h-2  bg-gray-200 rounded-lg appearance-none cursor-pointer ${
-                customTip !== '' ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              disabled={customTip !== ''}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
-            <div className="flex justify-between mt-2">
+            <div className="flex justify-between mt-2 text-sm text-gray-600">
               <span>₹0</span>
               <span>₹100</span>
             </div>
@@ -146,14 +159,14 @@ export default function PaymentPage({ onGoBack, user }) {
             </label>
             <div className="relative mt-1 rounded-md shadow-sm">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <span className="text-gray-500 sm:text-sm">₹</span>
+                <DollarSign className="h-5 w-5 text-gray-400" />
               </div>
               <input
                 type="number"
                 name="customTip"
                 id="customTip"
-                className="border-2 h-10 bg-slate-100 block w-full rounded-md border-gray-300 pl-7 pr-12 focus:border-[#229799] focus:ring-[#229799] sm:text-sm"
-                placeholder="Custom Tip"
+                className="block w-full rounded-md border-gray-300 pl-10 pr-12 focus:border-[#229799] focus:ring-[#229799] sm:text-sm"
+                placeholder="Enter custom tip"
                 value={customTip}
                 onChange={handleCustomTipChange}
                 min="0"
@@ -164,7 +177,7 @@ export default function PaymentPage({ onGoBack, user }) {
             <h3 className="text-lg font-medium text-gray-900 mb-2">Choose Helper</h3>
             <div className="relative">
               <div className="flex items-center justify-center space-x-4 overflow-hidden">
-                {!selectedHelper && (
+                {!selectedHelper && helpers.length > 0 && (
                   <button
                     onClick={prevHelper}
                     className="absolute left-0 z-10 bg-white bg-opacity-50 p-2 rounded-full shadow-md"
@@ -172,31 +185,35 @@ export default function PaymentPage({ onGoBack, user }) {
                     <ChevronLeft size={24} />
                   </button>
                 )}
-                {[
-                  helpers[(currentHelperIndex - 1 + helpers.length) % helpers.length],
-                  helpers[currentHelperIndex],
-                  helpers[(currentHelperIndex + 1) % helpers.length],
-                ].map((helper, index) => (
-                  <div
-                    key={helper.id}
-                    className={`flex flex-col items-center p-4 rounded-lg transition-all duration-300 ${
-                      index === 1 ? 'scale-110 z-10' : 'scale-90 opacity-50'
-                    } ${selectedHelper && selectedHelper.id !== helper.id ? 'hidden' : ''}`}
-                    onClick={() => handleHelperSelect(helper)}
-                  >
-                    <img
-                      src={helper.photo}
-                      alt={helper.name}
-                      className="w-20 h-20 rounded-full object-cover mb-2"
-                    />
-                    <span className="font-medium">{helper.name}</span>
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="ml-1">{helper.rating}</span>
+                {helpers.length > 0 ? (
+                  [
+                    helpers[(currentHelperIndex - 1 + helpers.length) % helpers.length],
+                    helpers[currentHelperIndex],
+                    helpers[(currentHelperIndex + 1) % helpers.length],
+                  ].map((helper, index) => (
+                    <div
+                      key={helper.id}
+                      className={`flex flex-col items-center p-4 rounded-lg transition-all duration-300 ${
+                        index === 1 ? 'scale-110 z-10' : 'scale-90 opacity-50'
+                      } ${selectedHelper && selectedHelper.id !== helper.id ? 'hidden' : ''}`}
+                      onClick={() => handleHelperSelect(helper)}
+                    >
+                      <img
+                        src={helper.photo || '/placeholder.svg?height=100&width=100'}
+                        alt={helper.name}
+                        className="w-20 h-20 rounded-full object-cover mb-2"
+                      />
+                      <span className="font-medium">{helper.name}</span>
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span className="ml-1">{helper.avgRating ? helper.avgRating.toFixed(1) : 'N/A'}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {!selectedHelper && (
+                  ))
+                ) : (
+                  <div>No helpers available</div>
+                )}
+                {!selectedHelper && helpers.length > 0 && (
                   <button
                     onClick={nextHelper}
                     className="absolute right-0 z-10 bg-white bg-opacity-50 p-2 rounded-full shadow-md"
@@ -231,6 +248,7 @@ export default function PaymentPage({ onGoBack, user }) {
               totalAmount === 0 ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
+            <CreditCard className="inline-block mr-2" size={20} />
             Pay ₹{totalAmount.toFixed(2)}
           </button>
         </div>
@@ -239,27 +257,27 @@ export default function PaymentPage({ onGoBack, user }) {
   )
 }
 
-function ProfileHeader() {
+function ProfileHeader({ store }) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div 
         className="h-48 bg-cover bg-center"
-        style={{ backgroundImage: `url("/placeholder.svg?height=200&width=800")` }}
+        style={{ backgroundImage: `url("${store.coverPhoto || '/placeholder.svg?height=200&width=800'}")` }}
       ></div>
       <div className="p-6 -mt-16 relative">
         <div className="flex flex-col md:flex-row items-center md:items-end space-y-4 md:space-y-0 md:space-x-6">
           <img
-            src="/placeholder.svg?height=100&width=100"
-            alt="Owner Profile"
+            src={store.logo || '/placeholder.svg?height=100&width=100'}
+            alt="Store Logo"
             className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
           />
           <div className="flex-grow text-center md:text-left">
-            <h1 className="text-2xl font-bold text-gray-800">John Doe</h1>
-            <h2 className="text-lg text-gray-600">Tasty Bites Restaurant</h2>
-            <p className="text-sm text-gray-500 mt-1">UPI: tastybites@upi</p>
+            <h1 className="text-2xl font-bold text-gray-800">{store.name}</h1>
+            <h2 className="text-lg text-gray-600">{store.address}</h2>
+            <p className="text-sm text-gray-500 mt-1">UPI: {store.ownerUpi}</p>
             <div className="flex items-center justify-center md:justify-start mt-2">
               <Star className="w-5 h-5 text-yellow-400 fill-current" />
-              <span className="ml-1 text-gray-600">4.5</span>
+              <span className="ml-1 text-gray-600">{store.avgRating ? store.avgRating.toFixed(1) : 'N/A'}</span>
             </div>
           </div>
         </div>

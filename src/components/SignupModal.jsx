@@ -1,25 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { X, User, UserCog, Building2 } from 'lucide-react';
 import WaiterSignup from './WaiterSignup';
-import { div } from 'framer-motion/client';
 import OwnerSignup from './OwnerSignup';
 import CustomerSignup from './CustomerSignup';
 import OTPVerify from './OtpVerify';
 import Signin from './Signin';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { Signin2 } from './States';
 
-const ProfileCard = ({ icon: Icon, title, description, onClick }) => (
-    <a href="#continue">  <div
-    className="bg-white p-6 rounded-lg shadow-md cursor-pointer transition-transform duration-300 hover:scale-105"
-    onClick={onClick}
-  >
-    
-    <Icon className="w-12 h-12 text-[#229799] mb-4" />
-    <h3 className="text-xl font-semibold mb-2">{title}</h3>
-    <p className="text-gray-600">{description}</p>
-  </div></a>
-
+const ProfileCard = ({ icon: Icon, title, description, onClick, isSelected }) => (
+  <a href="#continue">
+    <div
+      className={`relative overflow-hidden bg-white p-6 rounded-lg shadow-md cursor-pointer transition-all duration-300 hover:scale-105 ${
+        isSelected ? 'text-white' : ''
+      }`}
+      onClick={onClick}
+    >
+      <div
+        className={`absolute inset-0 bg-[#229799] transition-transform duration-300 ease-out ${
+          isSelected ? 'scale-100' : 'scale-0'
+        }`}
+        style={{ transformOrigin: 'center' }}
+      ></div>
+      <div className="relative z-10">
+        <Icon className={`w-12 h-12 mb-4 transition-colors duration-200 ${isSelected ? 'text-white' : 'text-[#229799]'}`} />
+        <h3 className="text-xl font-semibold mb-2">{title}</h3>
+        <p className={`transition-colors duration-200 ${isSelected ? 'text-white' : 'text-gray-600'}`}>{description}</p>
+      </div>
+    </div>
+  </a>
 );
 
 const SignupModal = ({ isOpen, onClose }) => {
@@ -28,8 +37,9 @@ const SignupModal = ({ isOpen, onClose }) => {
   const [showOwnerSignup, setShowOwnerSignup] = useState(false);
   const [showCustomerSignup, setShowCustomerSignup] = useState(false);
   const [showOtpVerify, setShowOtpVerify] = useState(false);
-  const signin = useRecoilValue(Signin2)
-  const setSignin = useSetRecoilState(Signin2)
+  const signin = useRecoilValue(Signin2);
+  const setSignin = useSetRecoilState(Signin2);
+  const [userType, setUserType] = useState("");
 
   const profiles = [
     {
@@ -39,7 +49,7 @@ const SignupModal = ({ isOpen, onClose }) => {
     },
     {
       icon: UserCog,
-      title: "Waiter / Helper",
+      title: "Staff",
       description: "Join to receive tips and track your performance."
     },
     {
@@ -49,27 +59,27 @@ const SignupModal = ({ isOpen, onClose }) => {
     }
   ];
 
-    if (showWaiterSignup) {
-        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><WaiterSignup setShowWaiterSignup={setShowWaiterSignup}  setShowOtpVerify={setShowOtpVerify} onClose={onClose}/></div>
-      }
-      else if (showOwnerSignup){
-        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OwnerSignup setShowOwnerSignup={setShowOwnerSignup} setShowOtpVerify={setShowOtpVerify} onClose={onClose} /></div>
-      }
-      else if (showCustomerSignup){
-        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><CustomerSignup setShowCustomerSignup={setShowCustomerSignup} setShowOtpVerify={setShowOtpVerify} onClose={onClose} /></div>
-      }
-      else if (showOtpVerify){
-        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OTPVerify setShowOtpVerify={setShowOtpVerify} email={sessionStorage.getItem("email")} /></div>
-      }
-      else if (signin){
-        return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><Signin  setSignin={setSignin} /></div>
-      }
+  if (showWaiterSignup) {
+    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><WaiterSignup setShowWaiterSignup={setShowWaiterSignup}  setShowOtpVerify={setShowOtpVerify} setUserType={setUserType} onClose={onClose}/></div>
+  }
+  else if (showOwnerSignup){
+    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OwnerSignup setShowOwnerSignup={setShowOwnerSignup} setShowOtpVerify={setShowOtpVerify} setUserType={setUserType} onClose={onClose} /></div>
+  }
+  else if (showCustomerSignup){
+    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><CustomerSignup setShowCustomerSignup={setShowCustomerSignup} setShowOtpVerify={setShowOtpVerify} setUserType={setUserType} onClose={onClose} /></div>
+  }
+  else if (showOtpVerify){
+    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OTPVerify setShowOtpVerify={setShowOtpVerify} userType={userType} /></div>
+  }
+  else if (signin){
+    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><Signin  setSignin={setSignin} /></div>
+  }
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl p-3 max-h-screen overflow-auto scroll-smooth">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl p-3 max-h-screen overflow-auto scroll-smooth animate-popup">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Choose Your Profile</h2>
@@ -86,28 +96,26 @@ const SignupModal = ({ isOpen, onClose }) => {
                 key={index}
                 {...profile}
                 onClick={() => setSelectedProfile(profile.title)}
+                isSelected={selectedProfile === profile.title}
               />
             ))}
           </div>
           {selectedProfile && (
             <div className="mt-8 text-center">
-              <p id='continue' className="text-lg font-semibold text-[#229799]">
-                You've selected: {selectedProfile}
-              </p>
               <button 
                 className="mt-4 bg-[#229799] text-white px-6 py-2 rounded-md hover:bg-[#1b7a7c] transition-colors duration-300"
                 onClick={() => {
-                  if (selectedProfile === 'Waiter / Helper') {
-                    setShowWaiterSignup(true); // Show WaiterSignup if Waiter/Helper is selected
+                  if (selectedProfile === 'Staff') {
+                    setShowWaiterSignup(true);
                   } 
                   if (selectedProfile === 'Customer') {
-                    setShowCustomerSignup(true); // Show WaiterSignup if Waiter/Helper is selected
+                    setShowCustomerSignup(true);
                   } 
                   if (selectedProfile === 'Owner') {
-                    setShowOwnerSignup(true); // Show WaiterSignup if Waiter/Helper is selected
+                    setShowOwnerSignup(true);
                   } 
                   else {
-                    onClose();  // Close the modal if another profile is selected
+                    onClose();
                   }
                 }}
               >
@@ -121,4 +129,4 @@ const SignupModal = ({ isOpen, onClose }) => {
   );
 };
 
-export default SignupModal
+export default SignupModal;

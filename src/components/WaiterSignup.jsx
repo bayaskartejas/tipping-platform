@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import axios from "axios"; // Ensure axios is imported
 import { useSetRecoilState } from 'recoil';
 import { Signin2 } from './States';
+import { Loader2 } from 'lucide-react';
 
-function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify }) {
+function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify, setUserType }) {
     const setSignin = useSetRecoilState(Signin2);
     const firstNameRef = useRef();
     const lastNameRef = useRef();
@@ -11,14 +12,17 @@ function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify }) {
     const aadhaarRef = useRef();
     const upiRef = useRef();  
     const genderRef = useRef();
-    const ageDayRef = useRef(); 
+    const ageDayRef = useRef();     
     const ageMonthRef = useRef();
     const ageYearRef = useRef();
-    const storeIdRef = useRef(); // Added ref for store ID
+    const storeIdRef = useRef(); 
+    const numberRef = useRef();
+    
+    const [isLoading, setLoading] = useState(false)
 
     async function handleSubmit(e) {
         e.preventDefault();
-
+        setLoading(true)
         if (genderRef.current.value === "Select") {
             alert("Select gender properly");
             return;
@@ -26,28 +30,34 @@ function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify }) {
 
         // Gather the data to be sent to the backend
         const waiterData = {
-            staff_name: `${firstNameRef.current.value} ${lastNameRef.current.value}`, // Combining first and last name
-            staff_email: emailRef.current.value,
-            staff_aadhaar: aadhaarRef.current.value,
-            staff_upi: upiRef.current.value,
-            staff_dob: `${ageYearRef.current.value}-${ageMonthRef.current.value}-${ageDayRef.current.value}`, // Format: YYYY-MM-DD
-            staff_gender: genderRef.current.value,
+            storeId: storeIdRef.current.value,
+            name: `${firstNameRef.current.value} ${lastNameRef.current.value}`, // Combining first and last name
+            email: emailRef.current.value,
+            aadhaar: aadhaarRef.current.value,
+            upi: upiRef.current.value,
+            dob: `${ageYearRef.current.value}-${ageMonthRef.current.value}-${ageDayRef.current.value}`, // Format: YYYY-MM-DD
+            gender: genderRef.current.value,
+            number: numberRef.current.value
         };
 
         try {
             // Send a POST request to the backend
-            const response = await axios.post('http://localhost:3000/api/staff', waiterData);
+            const response = await axios.post('http://localhost:3000/api/staff/register', waiterData);
             console.log('Staff created:', response.data);
+            sessionStorage.setItem("email", emailRef.current.value)
+            sessionStorage.setItem("storeId", storeIdRef.current.value)
             setShowOtpVerify(true); // Show OTP verification component
             setShowWaiterSignup(false); // Close the signup form
+            setUserType("staff")
         } catch (error) {
             console.error('Error creating staff:', error);
             alert('Failed to create staff. Please try again.');
+            setLoading(false)
         }
     }
 
     return (
-        <div className='bg-white animate-popup w-96 h-[480px] justify-self-center shadow-lg rounded-lg md:px-7 px-4 py-8 transform transition-transform duration-300 scale-95'>
+        <div className='bg-white animate-popup w-96 h-[530px] justify-self-center shadow-lg rounded-lg md:px-7 px-4 py-8 transform transition-transform duration-300 scale-95'>
             <div className='flex justify-between'>
                 <h1 className='justify-center flex text-2xl font-medium'>Create an Account</h1> 
                 <svg onClick={() => setShowWaiterSignup(false)} className='cursor-pointer' xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 48 48">
@@ -63,6 +73,8 @@ function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify }) {
                 </div>
                 <input type="email" className='w-full h-8 mt-2 border-2 border-gray-300 placeholder:text-gray-500 rounded-md text-sm pl-3' ref={emailRef} placeholder='Email Address' required />
                 <input type="text" className='w-full h-8 mt-2 border-2 border-gray-300 placeholder:text-gray-500 rounded-md text-sm pl-3' ref={aadhaarRef} placeholder='Aadhaar Card' required />
+                <input type="number" className='w-full h-8 mt-2 border-2 border-gray-300 placeholder:text-gray-500 rounded-md text-sm pl-3' ref={storeIdRef} placeholder='Store ID' required />
+                <input type="number" className='w-full h-8 mt-2 border-2 border-gray-300 placeholder:text-gray-500 rounded-md text-sm pl-3' ref={numberRef} placeholder='Mobile Number' required />
                 <input type="text" className='w-full h-8 mt-2 border-2 border-gray-300 placeholder:text-gray-500 rounded-md text-sm pl-3' ref={upiRef} placeholder='UPI ID' required />
                 <div className='text-sm mt-3 mb-1 text-gray-500'>Date of Birth</div>
                 <div className='mb-2 flex'>
@@ -93,7 +105,9 @@ function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify }) {
                     </select>
                 </div>
                 <div className='flex justify-center'>
-                    <button type='submit' className='flex text-white text-lg bg-[#229799] hover:bg-[#229799] w-full py-2 rounded-md hover:bg-green-101 transition delay-100 hover:shadow-md justify-center mt-4'>Sign up</button>
+                    <button type='submit' className='flex text-white text-lg bg-[#229799] hover:bg-[#229799] w-full py-2 rounded-md hover:bg-green-101 transition delay-100 hover:shadow-md justify-center mt-4'>
+                    {isLoading ? <Loader2 className="animate-spin" /> : "Sign up"}
+                    </button>
                 </div>
             </form>
             <div className='flex justify-center text-sm text-slate-500 mt-4'>

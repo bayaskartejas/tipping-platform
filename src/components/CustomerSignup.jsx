@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { WarningAlert } from './Alerts';
 import { useState } from 'react'; // Import useState for managing form data
 
-export default function CustomerSignup({ setShowCustomerSignup, setShowOtpVerify }) {
+export default function CustomerSignup({ setShowCustomerSignup, setShowOtpVerify, setUserType }) {
   const setSignin = useSetRecoilState(Signin2);
 
   // Define state to hold form input values
@@ -38,6 +38,7 @@ export default function CustomerSignup({ setShowCustomerSignup, setShowOtpVerify
         setLoading(false)
         setShowCustomerSignup(false); // Close the signup form
         setShowOtpVerify(true); // Show the OTP verification component
+        setUserType("customer")
       }
     } catch (error) {
       setWarning(true)

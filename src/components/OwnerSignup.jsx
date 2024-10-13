@@ -2,11 +2,13 @@ import { useState, useRef } from 'react'
 import { Camera, X } from 'lucide-react'
 import { Signin2 } from './States';
 import { useSetRecoilState } from 'recoil';
+import { Loader2 } from 'lucide-react';
 import axios from 'axios';
 
-export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify }) {
+export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setUserType }) {
   const [storeLogo, setStoreLogo] = useState(null);
   const [ownerSelfie, setOwnerSelfie] = useState(null);
+  const [isLoading, setLoading] = useState(false)
   const [ownerData, setOwnerData] = useState({
     storeName: '',
     storeAddress: '',
@@ -25,28 +27,29 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true)
     // Prepare form data for file uploads
     const formData = new FormData();
-    formData.append('store_name', ownerData.storeName);
-    formData.append('store_add', ownerData.storeAddress);
-    formData.append('owner_name', ownerData.ownerName);
-    formData.append('owner_dob', `${ownerData.year}-${String(ownerData.month).padStart(2, '0')}-${String(ownerData.day).padStart(2, '0')}`);
-    formData.append('owner_gender', ownerData.gender);
-    formData.append('owner_no', ownerData.mobileNumber);
-    formData.append('owner_aadhaar', ownerData.aadhaarNumber);
-    formData.append('owner_upi', ownerData.upiId);
+    formData.append('name', ownerData.storeName);
+    formData.append('address', ownerData.storeAddress);
+    formData.append('ownerName', ownerData.ownerName);
+    formData.append('ownerDob', `${ownerData.year}-${String(ownerData.month).padStart(2, '0')}-${String(ownerData.day).padStart(2, '0')}`);
+    formData.append('ownerGender', ownerData.gender);
+    formData.append('email', ownerData.email);
+    formData.append('ownerPhone', ownerData.mobileNumber);
+    formData.append('ownerAadhaar', ownerData.aadhaarNumber);
+    formData.append('ownerUpi', ownerData.upiId);
     
     if (storeLogo) {
-      formData.append('store_logo', storeLogo);
+      formData.append('logo', storeLogo);
     }
         
     if (ownerSelfie) {
-      formData.append('owner_photo', ownerSelfie);
+      formData.append('ownerPhoto', ownerSelfie);
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/api/stores', formData, {
+      const response = await axios.post('http://localhost:3000/api/store/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -55,9 +58,11 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify }) {
       console.log('Store created successfully:', response.data);
       setShowOtpVerify(true);
       setShowOwnerSignup(false);
+      setUserType("owner")
     } catch (error) {
       console.error('Error creating store:', error);
       alert('Failed to create store. Please try again.');
+      setLoading(false)
     }
   };
 
@@ -178,6 +183,13 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify }) {
           onChange={(e) => setOwnerData({ ...ownerData, mobileNumber: e.target.value })}
         />
         <input
+          type="email"
+          className='w-full h-8 border-2 border-gray-300 placeholder:text-gray-500 pl-3 rounded-md text-sm'
+          placeholder='Email'
+          required      
+          onChange={(e) => {setOwnerData({ ...ownerData, email: e.target.value }); sessionStorage.setItem("email", e.target.value)}}
+        />
+        <input
           type="text"
           className='w-full h-8 border-2 border-gray-300 placeholder:text-gray-500 pl-3 rounded-md text-sm'
           placeholder='Aadhaar Number'
@@ -213,7 +225,9 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify }) {
           required
           onChange={(e) => setOwnerData({ ...ownerData, upiId: e.target.value })}
         />
-        <button type='submit' className='flex text-white text-lg bg-[#229799] hover:bg-[#1b7b7d] w-full py-2 rounded-md transition delay-100 hover:shadow-md justify-center'>Sign up</button>
+        <button type='submit' className='flex text-white text-lg bg-[#229799] hover:bg-[#1b7b7d] w-full py-2 rounded-md transition delay-100 hover:shadow-md justify-center'>
+        {isLoading ? <Loader2 className="animate-spin" /> : "Sign up"}
+        </button>
       </form>
       <div className='flex justify-center text-sm text-slate-500 mt-4'>
         Already have an account?
