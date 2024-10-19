@@ -8,6 +8,9 @@ import CustomerProfile from './components/CustomerProfile'
 import OwnerProfile from './components/OwnerProfile'
 import PaymentPage from './components/PaymentPage'
 import Login from './components/Login'
+import ReviewPage from './components/ReviewPage'
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+const theme = createTheme();
 
 
 function App() {
@@ -55,6 +58,7 @@ function App() {
   }
 
   return (
+    <ThemeProvider theme={theme}>
     <div className='bg-slate-200 font-poppins w-full min-h-screen'>
       {user && (
         <nav className="bg-[#229799] p-4">
@@ -75,7 +79,7 @@ function App() {
         <Route
           path="/helper"
           // element={user && user.role === 'staff' ? <HelperProfile user={user} /> : <Navigate to="/login" />}
-          element={<HelperProfile/>}
+          element={<HelperProfile user={user}/>}
         />
         <Route
           path="/customer"
@@ -92,8 +96,14 @@ function App() {
           // element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />}
           element={<PaymentPage user={user}/>}
         />
+        <Route
+          path="/review"
+          // element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />}
+          element={<div className='h-screen flex'><ReviewPage /></div>}
+        />
       </Routes>
     </div>
+    </ThemeProvider>
   )
 }
 

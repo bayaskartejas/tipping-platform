@@ -29,11 +29,11 @@ const BaseAlert = ({ icon: Icon, bgColor, borderColor, textColor, message, onClo
   if (!isVisible) return null;
 
   return (
-    <div className={`relative border-l-4 p-4 mb-4 ${bgColor} ${borderColor} ${textColor}`}>
+    <div className={`relative border-l-4 px-4 py-3 mb-4 ${bgColor} ${borderColor} ${textColor} animate-popup`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <Icon className="mr-3" size={24} />
-          <p className="font-bold">{message}</p>
+          <p className="font-normal">{message}</p>
         </div>
         <button
           onClick={handleClose}

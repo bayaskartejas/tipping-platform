@@ -101,7 +101,7 @@ const SignupModal = ({ isOpen, onClose }) => {
             ))}
           </div>
           {selectedProfile && (
-            <div className="mt-8 text-center">
+            <div className="mt-8 text-center" id='continue'>
               <button 
                 className="mt-4 bg-[#229799] text-white px-6 py-2 rounded-md hover:bg-[#1b7a7c] transition-colors duration-300"
                 onClick={() => {

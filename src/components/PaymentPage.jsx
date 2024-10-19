@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ChevronLeft, Star, ChevronRight, DollarSign, CreditCard } from 'lucide-react'
+import { ChevronLeft, Star, ChevronRight, IndianRupee, CreditCard } from 'lucide-react'
 import axios from 'axios'
+import default_person from "../assets/default-person.png"
+import Slider from "react-slick"
+import ReactSlider from 'react-slider'
+import "slick-carousel/slick/slick.css"
+import "slick-carousel/slick/slick-theme.css"
 
 export default function PaymentPage() {
   const { storeId } = useParams()
@@ -10,11 +15,12 @@ export default function PaymentPage() {
   const [tipAmount, setTipAmount] = useState(0)
   const [customTip, setCustomTip] = useState('')
   const [selectedHelper, setSelectedHelper] = useState(null)
-  const [currentHelperIndex, setCurrentHelperIndex] = useState(0)
   const [helpers, setHelpers] = useState([])
   const [store, setStore] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [showGlow, setShowGlow] = useState(false)
+  const sliderRef = useRef(null)
 
   useEffect(() => {
     fetchStoreAndHelpers()
@@ -48,8 +54,8 @@ export default function PaymentPage() {
     setBillAmount(value === '' ? '' : Math.max(0, parseFloat(value)))
   }
 
-  const handleTipSliderChange = (e) => {
-    setTipAmount(parseInt(e.target.value))
+  const handleTipSliderChange = (value) => {
+    setTipAmount(value)
     setCustomTip('')
   }
 
@@ -64,6 +70,12 @@ export default function PaymentPage() {
   }
 
   const handlePayment = async () => {
+    if (totalAmount === 0 || selectedHelper == null) {
+      setShowGlow(true)
+      setTimeout(() => setShowGlow(false), 1000)
+      return
+    }
+
     try {
       const response = await axios.post('http://localhost:3000/api/transaction/upi-payment', {
         storeId: parseInt(storeId),
@@ -84,12 +96,32 @@ export default function PaymentPage() {
 
   const totalAmount = (parseFloat(billAmount) || 0) + (parseFloat(tipAmount) || 0)
 
-  const nextHelper = () => {
-    setCurrentHelperIndex((prevIndex) => (prevIndex + 1) % helpers.length)
+  const sliderSettings = {
+    className: "center",
+    centerMode: true,
+    infinite: true,
+    centerPadding: "60px",
+    slidesToShow: 3,
+    speed: 500,
+    focusOnSelect: true,
+    beforeChange: (current, next) => handleHelperSelect(helpers[next]),
+    responsive: [
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1,
+          centerPadding: "30px",
+        }
+      }
+    ]
   }
 
-  const prevHelper = () => {
-    setCurrentHelperIndex((prevIndex) => (prevIndex - 1 + helpers.length) % helpers.length)
+  const nextSlide = () => {
+    sliderRef.current.slickNext()
+  }
+
+  const prevSlide = () => {
+    sliderRef.current.slickPrev()
   }
 
   if (isLoading) {
@@ -120,13 +152,13 @@ export default function PaymentPage() {
             </label>
             <div className="relative mt-1 rounded-md shadow-sm">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <DollarSign className="h-5 w-5 text-gray-400" />
+                <IndianRupee className="h-5 w-5 text-gray-400" />
               </div>
               <input
                 type="number"
                 name="billAmount"
                 id="billAmount"
-                className="block w-full rounded-md border-gray-300 pl-10 pr-12 focus:border-[#229799] focus:ring-[#229799] sm:text-sm"
+                className="block w-full rounded-md border-gray-300 pl-10 pr-12 h-8 border-2 focus:border-[#229799] focus:ring-[#229799] sm:text-sm"
                 placeholder="Enter bill amount"
                 value={billAmount}
                 onChange={handleBillAmountChange}
@@ -138,15 +170,21 @@ export default function PaymentPage() {
             <label htmlFor="tipAmount" className="block text-sm font-medium text-gray-700 mb-1">
               Tip Amount: ₹{tipAmount}
             </label>
-            <input
-              type="range"
-              name="tipAmount"
-              id="tipAmount"
-              min="0"
-              max="100"
+            <ReactSlider
+              className="w-full h-10 flex items-center mt-7"
+              thumbClassName="w-6 h-6 bg-[#229799] rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#229799] cursor-pointer"
+              trackClassName="h-2 bg-gray-200 rounded-md"
+              min={0}
+              max={100}
               value={tipAmount}
               onChange={handleTipSliderChange}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              renderThumb={(props, state) => (
+                <div {...props}>
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#229799] text-white px-2 py-1 rounded text-xs">
+                    ₹{state.valueNow}
+                  </div>
+                </div>
+              )}
             />
             <div className="flex justify-between mt-2 text-sm text-gray-600">
               <span>₹0</span>
@@ -154,18 +192,18 @@ export default function PaymentPage() {
             </div>
           </div>
           <div>
-            <label htmlFor="customTip" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="customTip" className=" block text-sm font-medium text-gray-700 mb-1">
               Custom Tip
             </label>
             <div className="relative mt-1 rounded-md shadow-sm">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <DollarSign className="h-5 w-5 text-gray-400" />
+              <div className="pointer-events-none  absolute inset-y-0 left-0 flex items-center pl-3">
+                <IndianRupee className="h-5 w-5 text-gray-400" />
               </div>
               <input
                 type="number"
                 name="customTip"
                 id="customTip"
-                className="block w-full rounded-md border-gray-300 pl-10 pr-12 focus:border-[#229799] focus:ring-[#229799] sm:text-sm"
+                className="block h-8 border-2 w-full rounded-md border-gray-300 pl-10 pr-12 focus:border-[#229799] focus:ring-[#229799] sm:text-sm"
                 placeholder="Enter custom tip"
                 value={customTip}
                 onChange={handleCustomTipChange}
@@ -175,53 +213,45 @@ export default function PaymentPage() {
           </div>
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Choose Helper</h3>
-            <div className="relative">
-              <div className="flex items-center justify-center space-x-4 overflow-hidden">
-                {!selectedHelper && helpers.length > 0 && (
+            <div className={`relative rounded-lg ${showGlow ? 'animate-glow' : ''}`}>
+              {helpers.length > 0 ? (
+                <>
                   <button
-                    onClick={prevHelper}
-                    className="absolute left-0 z-10 bg-white bg-opacity-50 p-2 rounded-full shadow-md"
+                    onClick={prevSlide}
+                    className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white bg-opacity-50 p-2 rounded-full shadow-md"
                   >
                     <ChevronLeft size={24} />
                   </button>
-                )}
-                {helpers.length > 0 ? (
-                  [
-                    helpers[(currentHelperIndex - 1 + helpers.length) % helpers.length],
-                    helpers[currentHelperIndex],
-                    helpers[(currentHelperIndex + 1) % helpers.length],
-                  ].map((helper, index) => (
-                    <div
-                      key={helper.id}
-                      className={`flex flex-col items-center p-4 rounded-lg transition-all duration-300 ${
-                        index === 1 ? 'scale-110 z-10' : 'scale-90 opacity-50'
-                      } ${selectedHelper && selectedHelper.id !== helper.id ? 'hidden' : ''}`}
-                      onClick={() => handleHelperSelect(helper)}
-                    >
-                      <img
-                        src={helper.photo || '/placeholder.svg?height=100&width=100'}
-                        alt={helper.name}
-                        className="w-20 h-20 rounded-full object-cover mb-2"
-                      />
-                      <span className="font-medium">{helper.name}</span>
-                      <div className="flex items-center">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="ml-1">{helper.avgRating ? helper.avgRating.toFixed(1) : 'N/A'}</span>
+                  <Slider ref={sliderRef} {...sliderSettings}>
+                    {helpers.map((helper) => (
+                      <div key={helper.id} className="px-2">
+                        <div className={`flex flex-col items-center p-4 rounded-lg transition-all duration-300 ${
+                          selectedHelper && selectedHelper.id === helper.id ? 'scale-110 z-10' : 'scale-90 opacity-50'
+                        }`}>
+                          <img
+                            src={helper.photo || default_person}
+                            alt={helper.name}
+                            className="w-20 h-20 rounded-full object-cover mb-2"
+                          />
+                          <span className="font-medium">{helper.name}</span>
+                          <div className="flex items-center">
+                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="ml-1">{helper.avgRating ? helper.avgRating.toFixed(1) : 'N/A'}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  <div>No helpers available</div>
-                )}
-                {!selectedHelper && helpers.length > 0 && (
+                    ))}
+                  </Slider>
                   <button
-                    onClick={nextHelper}
-                    className="absolute right-0 z-10 bg-white bg-opacity-50 p-2 rounded-full shadow-md"
+                    onClick={nextSlide}
+                    className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white bg-opacity-50 p-2 rounded-full shadow-md"
                   >
                     <ChevronRight size={24} />
                   </button>
-                )}
-              </div>
+                </>
+              ) : (
+                <div>No helpers available</div>
+              )}
             </div>
           </div>
           <div>
@@ -243,9 +273,8 @@ export default function PaymentPage() {
           </div>
           <button
             onClick={handlePayment}
-            disabled={totalAmount === 0}
             className={`w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#229799] hover:bg-[#1b7b7d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#229799] ${
-              totalAmount === 0 ? 'opacity-50 cursor-not-allowed' : ''
+              totalAmount === 0 || selectedHelper == null ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             <CreditCard className="inline-block mr-2" size={20} />

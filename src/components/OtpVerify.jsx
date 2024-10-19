@@ -117,6 +117,7 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
           <h1 className='text-2xl font-medium'>Verify OTP</h1>
           <X className="cursor-pointer" size={24} onClick={() => setShowOtpVerify(false)} />
         </div>
+        <div className='text-sm text-slate-500'>sent on your email</div>
         <div className='border mt-2'></div>
         <form onSubmit={handleVerifyOTP} className="space-y-4 mt-4">
           <input

@@ -4,8 +4,11 @@ import { Signin2 } from './States';
 import { useSetRecoilState } from 'recoil';
 import { Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { WarningAlert } from './Alerts';
 
 export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setUserType }) {
+  const [showWarning, setWarning] = useState(false)
+  const [warningMessage, setWarningMessage] = useState("")
   const [storeLogo, setStoreLogo] = useState(null);
   const [ownerSelfie, setOwnerSelfie] = useState(null);
   const [isLoading, setLoading] = useState(false)
@@ -60,8 +63,8 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
       setShowOwnerSignup(false);
       setUserType("owner")
     } catch (error) {
-      console.error('Error creating store:', error);
-      alert('Failed to create store. Please try again.');
+      setWarning(true)
+      setWarningMessage(error.response.data.error)
       setLoading(false)
     }
   };
@@ -76,7 +79,13 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
   };
 
   return (
-    <div className='bg-white max-h-screen overflow-auto animate-popup w-96 h-[700px] justify-self-center shadow-lg rounded-lg md:px-7 px-4 py-5 transform transition-transform duration-300 scale-95'>
+    <div>
+      {showWarning && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm ">
+          <WarningAlert message={warningMessage} onClose={() => setWarning(false)} />
+        </div>
+      )}
+      <div className='bg-white max-h-screen overflow-auto animate-popup w-72 sm:w-80 h-max justify-self-center shadow-lg rounded-lg md:px-7 px-4 py-5 transform transition-transform duration-300 scale-95'>
       <div className='flex justify-between items-center'>
         <h1 className='text-2xl font-medium'>Create Owner Account</h1>
         <X className="cursor-pointer" size={24} onClick={() => setShowOwnerSignup(false)} />
@@ -176,11 +185,11 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
           <option value="Other">Other</option>
         </select>
         <input
-          type="tel"
+          type="number"
           className='w-full h-8 border-2 border-gray-300 placeholder:text-gray-500 pl-3 rounded-md text-sm'
           placeholder='Mobile Number'
           required
-          onChange={(e) => setOwnerData({ ...ownerData, mobileNumber: e.target.value })}
+          onChange={(e) => setOwnerData({ ...ownerData, mobileNumber: parseInt(e.target.value) || '' })}
         />
         <input
           type="email"
@@ -190,11 +199,11 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
           onChange={(e) => {setOwnerData({ ...ownerData, email: e.target.value }); sessionStorage.setItem("email", e.target.value)}}
         />
         <input
-          type="text"
+          type="number"
           className='w-full h-8 border-2 border-gray-300 placeholder:text-gray-500 pl-3 rounded-md text-sm'
           placeholder='Aadhaar Number'
           required
-          onChange={(e) => setOwnerData({ ...ownerData, aadhaarNumber: e.target.value })}
+          onChange={(e) => setOwnerData({ ...ownerData, aadhaarNumber: parseInt(e.target.value) || '' })}
         />
         <div className="flex justify-between items-center">
           <div className="flex items-center">
@@ -233,6 +242,7 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
         Already have an account?
         <div onClick={() => { setSignin(true); setShowOwnerSignup(false) }} className='ml-1 text-blue-600 cursor-pointer'>Sign in</div>
       </div>
+    </div>
     </div>
   );
 }
