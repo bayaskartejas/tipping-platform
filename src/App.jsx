@@ -79,17 +79,17 @@ function App() {
         <Route
           path="/helper"
           // element={user && user.role === 'staff' ? <HelperProfile user={user} /> : <Navigate to="/login" />}
-          element={<HelperProfile user={user}/>}
+          element={<HelperProfile user={{name: "Sample"}}/>}
         />
         <Route
           path="/customer"
           // element={user && user.role === 'customer' ? <CustomerProfile user={user} /> : <Navigate to="/login" />}
-          element={<CustomerProfile  user={user} />}
+          element={<CustomerProfile  user={{name: "Sample"}} />}
         />
         <Route
           path="/owner"
           // element={user && user.role === 'store' ? <OwnerProfile user={user} /> : <Navigate to="/login" />}
-          element={<OwnerProfile  user={user} />}
+          element={<OwnerProfile  user={{name: "Sample"}} />}
         />
         <Route
           path="/pay/:storeId"

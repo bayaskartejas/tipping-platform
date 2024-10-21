@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChevronLeft, Ticket } from 'lucide-react'
 import ProfileHeaderO from './ProfileHeaderO'
 import StaffPerformanceGraph from './StaffPerformanceGraph'

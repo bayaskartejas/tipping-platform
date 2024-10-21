@@ -78,7 +78,7 @@ const ReviewCard = ({
   const [openDialog, setOpenDialog] = useState(false);
 
   const handleRatingChange = (event, value) => {
-    setRating(value);
+    setRating(value);    
   };
 
   const handleSubmit = async () => {
@@ -91,9 +91,9 @@ const ReviewCard = ({
 
         switch (type) {
           case 'restaurant':
-            endpoint = `http://localhost:3000/api/store/${storeId}/review`;
+            endpoint = `http://localhost:3000/api/review/store/${storeId}`;
             break;
-          case 'staff':
+          case 'staff':       
             endpoint = `http://localhost:3000/api/staff/${staffId}/review`;
             break;
           case 'platform':
@@ -152,7 +152,7 @@ const ReviewCard = ({
           )}
         </Box>
         <AnimatePresence>
-          {rating !== null && (rating < 4 || type !== 'restaurant') && (
+          {rating !== null /*&& (rating < 4 || type !== 'restaurant')*/ && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
@@ -179,6 +179,7 @@ const ReviewCard = ({
                 value={reviewContent}
                 onChange={(e) => setReviewContent(e.target.value)}
                 sx={{ mb: 2 }}
+                required
               />
             </motion.div>
           )}
@@ -269,7 +270,7 @@ const ReviewPage = () => {
       </Card>
     );
   }
-
+   
   return (
     <ReviewCard
       {...reviews[currentReview]}

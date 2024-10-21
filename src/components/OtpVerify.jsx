@@ -106,7 +106,7 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
 
   return (
     <div className="relative">
-      {showOverlay ? <LoadingOverlay duration={1500}/>: <></>}
+      {showOverlay ? <LoadingOverlay duration={1500}/>: <></>}    
       {showSuccess && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm">
           <SuccessAlert message={successMessage} onClose={() => setShowSuccess(false)} />
