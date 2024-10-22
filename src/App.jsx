@@ -10,48 +10,50 @@ import PaymentPage from './components/PaymentPage'
 import Login from './components/Login'
 import ReviewPage from './components/ReviewPage'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { useRecoilValue } from 'recoil'
 const theme = createTheme();
 
 
 function App() {
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const [token, setToken] = useState("")
 
 
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      fetchUser(token)
-    } else {
-      setLoading(false)
-    }
-  }, [])
+  // useEffect(() => {
+  //   const token = localStorage.getItem('token')
+  //   if (token) {
+  //     fetchUser(token)
+  //   } else {
+  //     setLoading(false)
+  //   }
+  // }, [])
 
-  const fetchUser = async (token) => {
-    try {
-      const response = await axios.get('http://localhost:3000/api/user/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      setUser(response.data)
-      navigate(`/${response.data.role}`)
-    } catch (error) {
-      console.error('Error fetching user:', error)
-      localStorage.removeItem('token')
-    }
-    setLoading(false)
-  }
+  // const fetchUser = async (token) => {
+  //   try {
+  //     const response = await axios.get('http://localhost:3000/api/user/profile', {
+  //       headers: { Authorization: `Bearer ${token}` }
+  //     })
+  //     setUser(response.data)
+  //     navigate(`/${response.data.role}`)
+  //   } catch (error) {
+  //     console.error('Error fetching user:', error)
+  //     localStorage.removeItem('token')
+  //   }
+  //   setLoading(false)
+  // }
 
-  const handleLoginSuccess = (userData) => {
-    setUser(userData)
-    navigate(`/${userData.role}`)
-  }
+  // const handleLoginSuccess = (userData) => {
+  //   setUser(userData)
+  //   navigate(`/${userData.role}`)
+  // }
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    setUser(null)
-    navigate('/')
-  }
+  // const handleLogout = () => {
+  //   localStorage.removeItem('token')
+  //   setUser(null)
+  //   navigate('/')
+  // }
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>
@@ -75,7 +77,7 @@ function App() {
       )}
       <Routes>
         <Route path="/" element={user ? <Navigate to={`/${user.role}`} /> : <MainLanding />} />
-        <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+        <Route path="/login" element={<Login />} />
         <Route
           path="/helper"
           // element={user && user.role === 'staff' ? <HelperProfile user={user} /> : <Navigate to="/login" />}
@@ -89,7 +91,7 @@ function App() {
         <Route
           path="/owner"
           // element={user && user.role === 'store' ? <OwnerProfile user={user} /> : <Navigate to="/login" />}
-          element={<OwnerProfile  user={{name: "Sample"}} />}
+          element={<OwnerProfile  user={{name: localStorage.getItem("name")}} />}
         />
         <Route
           path="/pay/:storeId"

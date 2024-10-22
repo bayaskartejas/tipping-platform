@@ -4,6 +4,7 @@ import axios from 'axios';
 import { X } from 'lucide-react';
 import { SuccessAlert } from './Alerts';
 import LoadingOverlay from './LoadingOverlay';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 
 const OTPVerify = ({ setShowOtpVerify, userType }) => {
   const [otp, setOtp] = useState('');
@@ -12,19 +13,13 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
   const [otpLoading, setOtpLoading] = useState(false);
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false); // State for success alert
-  const [successMessage, setSuccessMessage] = useState(''); // Success message
-  const navigate = useNavigate();
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [showOverlay, setShowOverlay] = useState(false);
-  
+  const navigate = useNavigate();
+  const email = sessionStorage.getItem("email");
+  const storeId = sessionStorage.getItem("storeId");
 
-  const handleShowOverlay = () => {
-    setShowOverlay(true);
-    // Automatically hide the overlay after it disappears
-    setTimeout(() => setShowOverlay(false), 3000);
-  };
-  let email = sessionStorage.getItem("email")
-  let storeId = sessionStorage.getItem("storeId")
   useEffect(() => {
     const interval = setInterval(() => {
       setTimer((prevTimer) => {
@@ -39,46 +34,51 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
     return () => clearInterval(interval);
   }, [timer]);
 
+  const handleShowOverlay = () => {
+    setShowOverlay(true);
+    setTimeout(() => setShowOverlay(false), 3000);
+  };
+
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
     try {
-      let response; 
-      if (userType == "customer"){
-        response = await axios.post('http://localhost:3000/api/auth/verify-otp-customer', { email, otp });
-      }
-      else if (userType == "owner"){
-        response = await axios.post('http://localhost:3000/api/auth/verify-otp-owner', { email, otp });
-      }
-      else if (userType == "staff"){
+      const BASE_URL = 'http://localhost:3000/api/auth';
+      let response;
+
+      if (userType === "customer") {
+        response = await axios.post(`${BASE_URL}/verify-otp-customer`, { email, otp });
+      } else if (userType === "store") {
+        response = await axios.post(`${BASE_URL}/verify-otp-owner`, { email, otp });
+      } else if (userType === "staff") {
         response = await axios.post('http://localhost:3000/api/staff/verify', { email, otp, storeId });
+      } else {
+        throw new Error('Invalid user type');
       }
-      
-      const { token, user } = response.data;
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token) 
+        console.log('Token set:', response.data.token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+    }
+     else {
+        setError('Authentication data is missing from the response.');
+        return;
+      }
 
-      setShowSuccess(true); // Show success alert
+      setShowSuccess(true);
       setSuccessMessage('Email verified successfully!');
-      setShowOverlay(true)
+      handleShowOverlay();
+      
       setTimeout(() => {
         setShowOtpVerify(false);
-        setShowSuccess(false); // Hide the success alert after some time
-        if (userType == 'customer') {
-          navigate('/customer');
-        } else if (userType == 'store') {
-          navigate('/owner');
-        } else if (userType == 'staff') {
-          navigate('/helper');
-        } else {
-          navigate('/dashboard');
-        }
-      }, 2000); // 2-second delay before navigating
+        setShowSuccess(false);
+        navigate(userType === 'customer' ? '/customer' : userType === 'store' ? '/owner' : '/helper');
+      }, 2000);
     } catch (error) {
+      console.error('OTP verification error:', error);
       setError(error.response?.data?.message || 'Invalid OTP. Please try again.');
     } finally {
       setIsLoading(false);
@@ -89,14 +89,14 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
     setError('');
     setOtpLoading(true);
     try {
-      await axios.post('http://localhost:3000/api/auth/resend-otp', { email });
+      await axios.post('http://localhost:3000/api/auth/resend-otp', { email, userType });
       setTimer(30);
       setOtpLoading(false);
       setCanResend(false);
 
-      setShowSuccess(true); // Show success alert
+      setShowSuccess(true);
       setSuccessMessage('OTP resent successfully!');
-      setTimeout(() => setShowSuccess(false), 3000); // Hide the success alert after 3 seconds
+      setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       setError('Failed to resend OTP. Please try again.');
     } finally {
@@ -106,7 +106,7 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
 
   return (
     <div className="relative">
-      {showOverlay ? <LoadingOverlay duration={1500}/>: <></>}    
+      {showOverlay && <LoadingOverlay duration={1500} />}
       {showSuccess && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm">
           <SuccessAlert message={successMessage} onClose={() => setShowSuccess(false)} />

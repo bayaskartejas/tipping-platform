@@ -31,7 +31,7 @@ const ProfileCard = ({ icon: Icon, title, description, onClick, isSelected }) =>
   </a>
 );
 
-const SignupModal = ({ isOpen, onClose }) => {
+const SignupModal = ({ isOpen, token, setToken, onClose }) => {
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [showWaiterSignup, setShowWaiterSignup] = useState(false);
   const [showOwnerSignup, setShowOwnerSignup] = useState(false);
@@ -60,16 +60,16 @@ const SignupModal = ({ isOpen, onClose }) => {
   ];
 
   if (showWaiterSignup) {
-    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><WaiterSignup setShowWaiterSignup={setShowWaiterSignup}  setShowOtpVerify={setShowOtpVerify} setUserType={setUserType} onClose={onClose}/></div>
+    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><WaiterSignup setShowWaiterSignup={setShowWaiterSignup}  setShowOtpVerify={setShowOtpVerify} setUserType={setUserType} token={token} setToken={setToken} onClose={onClose}/></div>
   }
   else if (showOwnerSignup){
-    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OwnerSignup setShowOwnerSignup={setShowOwnerSignup} setShowOtpVerify={setShowOtpVerify} setUserType={setUserType} onClose={onClose} /></div>
+    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OwnerSignup setShowOwnerSignup={setShowOwnerSignup} setShowOtpVerify={setShowOtpVerify} setUserType={setUserType} token={token} setToken={setToken} onClose={onClose} /></div>
   }
   else if (showCustomerSignup){
-    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><CustomerSignup setShowCustomerSignup={setShowCustomerSignup} setShowOtpVerify={setShowOtpVerify} setUserType={setUserType} onClose={onClose} /></div>
+    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><CustomerSignup setShowCustomerSignup={setShowCustomerSignup} setShowOtpVerify={setShowOtpVerify} setUserType={setUserType} token={token} setToken={setToken} onClose={onClose} /></div>
   }
   else if (showOtpVerify){
-    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OTPVerify setShowOtpVerify={setShowOtpVerify} userType={userType} /></div>
+    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OTPVerify setShowOtpVerify={setShowOtpVerify} userType={userType} token={token} setToken={setToken}/></div>
   }
   else if (signin){
     return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><Signin  setSignin={setSignin} /></div>

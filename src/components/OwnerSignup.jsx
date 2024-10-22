@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
 import axios from 'axios';
 import { 
@@ -14,7 +14,7 @@ import {
   Alert,
   CircularProgress,
   ThemeProvider,
-  createTheme,
+  createTheme,  
   Stepper,
   Step,
   StepLabel,
@@ -24,6 +24,7 @@ import { Camera, X, Loader2, Trash2, Save } from 'lucide-react';
 import { Signin2 } from './States';
 import { WarningAlert } from './Alerts';
 import Cropper from 'react-easy-crop';
+import { Show } from '@chakra-ui/react';
 
 const theme = createTheme({
   palette: {
@@ -69,7 +70,7 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
   });
 };
 
-export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setUserType }) {
+export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setUserType, token, setToken }) {
   const [activeStep, setActiveStep] = useState(0);
   const [showWarning, setWarning] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
@@ -81,6 +82,9 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [currentImage, setCurrentImage] = useState(null);
   const [currentImageType, setCurrentImageType] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [ownerData, setOwnerData] = useState({
     storeName: '',
@@ -94,7 +98,17 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
     aadhaarNumber: '',
     upiId: '',
     email: '',
+    password: ''
   });
+
+  useEffect(() => {
+    if (showWarning) {
+      const element = document.getElementById('alert');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [showWarning]);
 
   const fileInputRefLogo = useRef(null);
   const fileInputRefSelfie = useRef(null);
@@ -103,26 +117,69 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const formData = new FormData();
-    Object.keys(ownerData).forEach(key => {
-      formData.append(key, ownerData[key]);
-    });
-    formData.append('ownerDob', `${ownerData.year}-${String(ownerData.month).padStart(2, '0')}-${String(ownerData.day).padStart(2, '0')}`);
-    
-    if (storeLogo) formData.append('logo', storeLogo);
-    if (ownerSelfie) formData.append('ownerPhoto', ownerSelfie);
+    console.log("Form submission started");
+    console.log("Owner Data:", ownerData);
+    console.log("Store Logo:", storeLogo);
+    console.log("Owner Selfie:", ownerSelfie);
+
+    if (password !== confirmPassword) {
+      setWarning(true);
+      setWarningMessage("Passwords do not match");
+      setLoading(false);
+      return;
+    }
 
     try {
-      const response = await axios.post('http://localhost:3000/api/store/register', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      console.log('Store created successfully:', response.data);
+      const formData = {
+        name: ownerData.storeName,
+        address: ownerData.storeAddress,
+        ownerName: ownerData.ownerName,
+        ownerDob: `${ownerData.year}-${String(ownerData.month).padStart(2, '0')}-${String(ownerData.day).padStart(2, '0')}`,
+        ownerGender: ownerData.gender,
+        ownerPhone: ownerData.mobileNumber,
+        ownerAadhaar: ownerData.aadhaarNumber,
+        ownerUpi: ownerData.upiId,
+        email: ownerData.email,
+        password: password,
+        logoFile: storeLogo ? {
+          contentType: storeLogo.type
+        } : null,
+        ownerPhotoFile: ownerSelfie ? {
+          contentType: ownerSelfie.type
+        } : null
+      };
+
+      console.log("Form Data to be sent:", formData);
+
+      const response = await axios.post('http://localhost:3000/api/store/register', formData);
+      console.log("Server Response:", response.data);
+      
+      if (response.data.logoPutUrl && storeLogo) {
+        console.log("Uploading store logo");
+        await axios.put(response.data.logoPutUrl, storeLogo, {
+          headers: { 'Content-Type': storeLogo.type }
+        });
+      }
+      if (response.data.ownerPhotoPutUrl && ownerSelfie) {
+        console.log("Uploading owner selfie");
+        await axios.put(response.data.ownerPhotoPutUrl, ownerSelfie, {
+          headers: { 'Content-Type': ownerSelfie.type }
+        });
+      }
+
+      localStorage.setItem('storeId', response.data.storeId);
+
+      console.log("Registration successful, navigating to OTP verification");
       setShowOtpVerify(true);
       setShowOwnerSignup(false);
-      setUserType("owner");
+      setLoading(false);
+      setUserType("store");
     } catch (error) {
+      console.error("Error during form submission:", error);
       setWarning(true);
+      setLoading(false);
       setWarningMessage(error.response?.data?.error || 'An error occurred');
+      setUploadError(error.message);
     } finally {
       setLoading(false);
     }
@@ -204,7 +261,7 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
                 startIcon={<Camera />}
                 onClick={() => fileInputRefLogo.current.click()}
               >
-                Upload Store Logo
+                Upload Logo
               </Button>
               <input
                 type="file"
@@ -219,7 +276,7 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
                     component="img"
                     src={URL.createObjectURL(storeLogo)}
                     alt="Store Logo"
-                    sx={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }}
+                    sx={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', ml:5 }}
                   />
                   <IconButton onClick={() => setStoreLogo(null)} size="small">
                     <X size={16} />
@@ -349,7 +406,7 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
                     component="img"
                     src={URL.createObjectURL(ownerSelfie)}
                     alt="Owner Selfie"
-                    sx={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }}
+                    sx={{ width: 64,   height: 64, borderRadius: '50%', objectFit: 'cover', ml:5 }}
                   />
                   <IconButton onClick={() => setOwnerSelfie(null)} size="small">
                     <X size={16} />
@@ -369,6 +426,33 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
             />
           </>
         );
+      case 2:
+        return (
+          <>
+            <TextField
+              fullWidth
+              label="Password"
+              variant="outlined"
+              margin="normal"
+              required
+              type="password"
+              sx={{ my: 1 }}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Confirm Password"
+              variant="outlined"
+              margin="normal"
+              required
+              type="password"
+              sx={{ my: 1 }}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </>
+        );
       default:
         return 'Unknown step';
     }
@@ -382,7 +466,12 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
             {warningMessage}
           </Alert>
         )}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        {uploadError && (
+          <Alert severity="error" onClose={() => setUploadError(null)} sx={{ mb: 2 }}>
+            {uploadError}
+          </Alert>
+        )}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h5">Create Owner Account</Typography>
           <IconButton onClick={() => setShowOwnerSignup(false)}>
             <X />
@@ -398,6 +487,9 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
           <Step>
             <StepLabel>Owner Info</StepLabel>
           </Step>
+          <Step>
+            <StepLabel>Create Password</StepLabel>
+          </Step>
         </Stepper>
         <form onSubmit={handleSubmit}>
           {renderStepContent(activeStep)}
@@ -408,7 +500,7 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
             >
               Back
             </Button>
-            {activeStep === 1 ? (
+            {activeStep === 2 ? (
               <Button
                 type="submit"
                 variant="contained"
@@ -421,7 +513,10 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
               <Button
                 variant="contained"
                 onClick={handleNext}
-                disabled={!ownerData.storeName || !ownerData.storeAddress}
+                disabled={
+                  (activeStep === 0 && (!ownerData.storeName || !ownerData.storeAddress)) ||
+                  (activeStep === 1 && (!ownerData.ownerName || !ownerData.email || !ownerData.mobileNumber))
+                }
               >
                 Next
               </Button>
@@ -434,8 +529,7 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
             component="span"
             color="primary"
             sx={{ cursor: 'pointer' }}
-            onClick={() => { setSignin(true); setShowOwnerSignup(false); 
-            }}
+            onClick={() => { setSignin(true); setShowOwnerSignup(false); }}
           >
             Sign in
           </Typography>

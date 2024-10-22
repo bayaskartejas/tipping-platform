@@ -31,3 +31,7 @@ export const Signup = atom({
     key: 'selectedProfile', // unique ID (with respect to other atoms/selectors)
     default: null, // default value (aka initial value)
   });
+  export const Token = atom({
+    key: "token",
+    default: ""
+  })

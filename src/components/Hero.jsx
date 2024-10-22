@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import SignupModal from './SignupModal';
 import sunrise from "../assets/sunrise.jpg"
 
-const Hero = () => {
+const Hero = (token, setToken) => {
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+  
 
   return (
     <section 
@@ -32,6 +33,8 @@ const Hero = () => {
       {/* Signup Modal */}
       <SignupModal 
         isOpen={isSignupModalOpen} 
+        token={token}
+        setToken={setToken}
         onClose={() => setIsSignupModalOpen(false)} 
       />
     </section>

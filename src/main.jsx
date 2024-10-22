@@ -6,12 +6,13 @@ import { RecoilRoot } from 'recoil'
 import './index.css'
 import { ChakraProvider } from '@chakra-ui/react'
 
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ChakraProvider>
       <RecoilRoot>
         <BrowserRouter>
-          <App />
+            <App />
         </BrowserRouter>
       </RecoilRoot>
     </ChakraProvider>

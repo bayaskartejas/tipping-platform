@@ -21,6 +21,7 @@ export default function PaymentPage() {
   const [error, setError] = useState(null)
   const [showGlow, setShowGlow] = useState(false)
   const sliderRef = useRef(null)
+  const [imageUrls, setImageUrls] = useState("")
 
   useEffect(() => {
     fetchStoreAndHelpers()
@@ -31,6 +32,8 @@ export default function PaymentPage() {
     setError(null)
     try {
       console.log('Fetching store and helpers for storeId:', storeId)
+      const imageUrlsResponse = await axios.get(`http://localhost:3000/api/store/image-urls/${storeId}`);
+      setImageUrls(imageUrlsResponse.data);
       const storeResponse = await axios.get(`http://localhost:3000/api/store/${storeId}`)
       console.log('Store data:', storeResponse.data)
       setStore(storeResponse.data)
@@ -144,7 +147,7 @@ export default function PaymentPage() {
             <span className="ml-1">Go Back</span>
           </button>
         </div>
-        {store && <ProfileHeader store={store} />}
+        {store && <ProfileHeader imageUrls={imageUrls} store={store} />}
         <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
           <div>
             <label htmlFor="billAmount" className="block text-sm font-medium text-gray-700 mb-1">
@@ -286,17 +289,17 @@ export default function PaymentPage() {
   )
 }
 
-function ProfileHeader({ store }) {
+function ProfileHeader({ imageUrls, store }) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div 
         className="h-48 bg-cover bg-center"
-        style={{ backgroundImage: `url("${store.coverPhoto || '/placeholder.svg?height=200&width=800'}")` }}
+        style={{ backgroundImage: `url("${imageUrls.logoUrl || '/placeholder.svg?height=200&width=800'}")` }}
       ></div>
       <div className="p-6 -mt-16 relative">
         <div className="flex flex-col md:flex-row items-center md:items-end space-y-4 md:space-y-0 md:space-x-6">
           <img
-            src={store.logo || '/placeholder.svg?height=100&width=100'}
+            src={imageUrls.ownerPhotoUrl || '/placeholder.svg?height=100&width=100'}
             alt="Store Logo"
             className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
           />

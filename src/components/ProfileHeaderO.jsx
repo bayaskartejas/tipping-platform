@@ -3,14 +3,13 @@ import axios from 'axios'
 import { Edit2, Check, X, Camera } from 'lucide-react'
 import defaultPerson from "../assets/default-person.png"
 
-export default function ProfileHeaderO() {
+export default function ProfileHeaderO({imageUrls, profileData}) {
   const [isHovered, setIsHovered] = useState(false)
   const [isCoverHovered, setIsCoverHovered] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [selectedCoverImage, setSelectedCoverImage] = useState(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [showCoverConfirmation, setShowCoverConfirmation] = useState(false)
-  const [name, setName] = useState("John Doe")
   const [storeName, setStoreName] = useState("Tasty Bites Restaurant")
   const [isEditingName, setIsEditingName] = useState(false)
   const [isEditingStoreName, setIsEditingStoreName] = useState(false)
@@ -131,7 +130,7 @@ export default function ProfileHeaderO() {
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div 
         className="relative h-48 bg-cover bg-center bg-slate-200"
-        style={{ backgroundImage: `url(${selectedCoverImage || "/placeholder.svg?height=200&width=800"})` }}
+        style={{ backgroundImage: `url(${imageUrls.logoUrl || "/placeholder.svg?height=200&width=800"})` }}
         onMouseEnter={() => setIsCoverHovered(true)}
         onMouseLeave={() => setIsCoverHovered(false)}
       >
@@ -159,7 +158,7 @@ export default function ProfileHeaderO() {
             onMouseLeave={() => setIsHovered(false)}
           >
             <img
-              src={selectedImage || defaultPerson}
+              src={imageUrls.ownerPhotoUrl || defaultPerson}
               alt="Owner Profile"
               className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg z-20"
             />
@@ -198,7 +197,7 @@ export default function ProfileHeaderO() {
     </>
   ) : (
     <>
-      <h1 className="text-2xl font-bold text-gray-800">{name}</h1>
+      <h1 className="text-2xl font-bold text-gray-800">{profileData.ownerName}</h1>
       <button onClick={handleEditName} className="text-[#229799] hover:text-[#1b7b7d]">
         <Edit2 size={20} />
       </button>
@@ -223,7 +222,7 @@ export default function ProfileHeaderO() {
     </>
   ) : (
     <>
-      <h2 className="text-lg text-gray-600">{storeName}</h2>
+      <h2 className="text-lg text-gray-600">{profileData.name}</h2>
       <button onClick={handleEditStoreName} className="text-[#229799] hover:text-[#1b7b7d]">
         <Edit2 size={20} />
       </button>
