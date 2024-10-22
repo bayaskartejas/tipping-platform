@@ -46,7 +46,7 @@ function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify, setUserType }) {
 
         try {
             // Send a POST request to the backend
-            const response = await axios.post('http://localhost:3000/api/staff/register', waiterData);
+            const response = await axios.post('https://tipnex-server.tipnex.com/api/staff/register', waiterData);
             sessionStorage.setItem("email", emailRef.current.value)
             sessionStorage.setItem("storeId", storeIdRef.current.value)
             setShowOtpVerify(true); // Show OTP verification component

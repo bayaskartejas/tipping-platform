@@ -32,7 +32,7 @@ function App() {
 
   // const fetchUser = async (token) => {
   //   try {
-  //     const response = await axios.get('http://localhost:3000/api/user/profile', {
+  //     const response = await axios.get('https://tipnex-server.tipnex.com/api/user/profile', {
   //       headers: { Authorization: `Bearer ${token}` }
   //     })
   //     setUser(response.data)

@@ -24,7 +24,7 @@ export default function OwnerProfile({ onGoBack, user }) {
     const token = localStorage.getItem("token")
     console.log('Token before fetching:', token);
       try {
-        const response = await axios.get('http://localhost:3000/api/store/profile', {
+        const response = await axios.get('https://tipnex-server.tipnex.com/api/store/profile', {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -47,10 +47,10 @@ export default function OwnerProfile({ onGoBack, user }) {
           setError('Store ID not found. Please log in again.');
           return;
         }
-        const profileResponse = await axios.get(`http://localhost:3000/api/store/${storeId}`);
+        const profileResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/${storeId}`);
         setProfileData(profileResponse.data);
 
-        const imageUrlsResponse = await axios.get(`http://localhost:3000/api/store/image-urls/${storeId}`);
+        const imageUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/image-urls/${storeId}`);
         setImageUrls(imageUrlsResponse.data);
       } catch (err) {
         setError(err.response?.data?.error || 'An error occurred while fetching profile data');

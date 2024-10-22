@@ -32,12 +32,12 @@ export default function PaymentPage() {
     setError(null)
     try {
       console.log('Fetching store and helpers for storeId:', storeId)
-      const imageUrlsResponse = await axios.get(`http://localhost:3000/api/store/image-urls/${storeId}`);
+      const imageUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/image-urls/${storeId}`);
       setImageUrls(imageUrlsResponse.data);
-      const storeResponse = await axios.get(`http://localhost:3000/api/store/${storeId}`)
+      const storeResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/${storeId}`)
       console.log('Store data:', storeResponse.data)
       setStore(storeResponse.data)
-      const helpersResponse = await axios.get(`http://localhost:3000/api/staff/store/${storeId}`)
+      const helpersResponse = await axios.get(`https://tipnex-server.tipnex.com/api/staff/store/${storeId}`)
       console.log('Helpers data:', helpersResponse.data)
       setHelpers(helpersResponse.data)
     } catch (error) {
@@ -80,7 +80,7 @@ export default function PaymentPage() {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/api/transaction/upi-payment', {
+      const response = await axios.post('https://tipnex-server.tipnex.com/api/transaction/upi-payment', {
         storeId: parseInt(storeId),
         staffId: selectedHelper ? selectedHelper.id : null,
         bill: parseFloat(billAmount),

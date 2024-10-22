@@ -12,7 +12,7 @@ export default function ManageCoupons({ onClose, storeId }) {
 
   const fetchCoupons = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/coupon/store`, {
+      const response = await axios.get(`https://tipnex-server.tipnex.com/api/coupon/store`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -25,7 +25,7 @@ export default function ManageCoupons({ onClose, storeId }) {
   const handleCreateCoupon = async (e) => {
     e.preventDefault()
     try {
-      const response = await axios.post('http://localhost:3000/api/coupon/generate', {
+      const response = await axios.post('https://tipnex-server.tipnex.com/api/coupon/generate', {
         ...newCoupon,
         storeId
       }, {
