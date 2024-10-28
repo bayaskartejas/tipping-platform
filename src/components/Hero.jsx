@@ -8,15 +8,15 @@ const Hero = (token, setToken) => {
 
   return (
     <section 
-      className="relative bg-cover bg-center bg-fixed min-h-screen flex items-center justify-center px-6" 
+      className="relative bg-cover bg-center bg-fixed min-h-screen flex items-center justify-center px-6 " 
       style={{ backgroundImage: `url(${sunrise})` }} // Set the background image with parallax effect
     >
       {/* Optional overlay for better contrast */}
       <div className="absolute inset-0 bg-black bg-opacity-40"></div>
 
       {/* Hero content */}
-      <div className="relative max-w-7xl mx-auto text-center text-white z-10 mt-12 sm:mt-0">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+      <div className="relative max-w-7xl mx-auto text-center text-white z-10 mt-7 sm:mt-10">
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6">
           Elevate staff satisfaction with the ultimate <span className="text-[#229799]">digital gratuity platform</span> for restaurants and retail.
         </h1>
         <p className="text-lg md:text-xl lg:text-2xl text-gray-200 mb-8">

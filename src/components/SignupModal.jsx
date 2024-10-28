@@ -4,8 +4,9 @@ import WaiterSignup from './WaiterSignup';
 import OwnerSignup from './OwnerSignup';
 import CustomerSignup from './CustomerSignup';
 import OTPVerify from './OtpVerify';
-import Signin from './Signin';
+import Login from './Login';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useNavigate } from 'react-router-dom';
 import { Signin2 } from './States';
 
 const ProfileCard = ({ icon: Icon, title, description, onClick, isSelected }) => (
@@ -40,6 +41,7 @@ const SignupModal = ({ isOpen, token, setToken, onClose }) => {
   const signin = useRecoilValue(Signin2);
   const setSignin = useSetRecoilState(Signin2);
   const [userType, setUserType] = useState("");
+  const navigate = useNavigate()
 
   const profiles = [
     {
@@ -72,7 +74,7 @@ const SignupModal = ({ isOpen, token, setToken, onClose }) => {
     return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><OTPVerify setShowOtpVerify={setShowOtpVerify} userType={userType} token={token} setToken={setToken}/></div>
   }
   else if (signin){
-    return <div className='fixed z-50 top-0 left-0 right-0 inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300'><Signin  setSignin={setSignin} /></div>
+    navigate("/login")
   }
 
   if (!isOpen) return null;

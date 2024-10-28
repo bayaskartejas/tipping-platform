@@ -1,6 +1,7 @@
 import React from 'react'
 import { X } from 'lucide-react'
 import axios from 'axios'
+import { useEffect, useState } from 'react'
 
 export default function ManageCoupons({ onClose, storeId }) {
   const [coupons, setCoupons] = useState([])
@@ -50,24 +51,24 @@ export default function ManageCoupons({ onClose, storeId }) {
         </button>
         <h2 className="text-2xl font-bold mb-4">Manage Coupons</h2>
         <form onSubmit={handleCreateCoupon} className="mb-6">
-          <div className="flex space-x-4">
+          <div className="sm:flex space-x-4">
             <input
               type="number"
               placeholder="Discount (%)"
               value={newCoupon.discount}
               onChange={(e) => setNewCoupon({ ...newCoupon, discount: e.target.value })}
-              className="flex-1 p-2 border rounded"
+              className="flex-1 p-2 border rounded w-32"
             />
             <input
               type="date"
               value={newCoupon.validity}
               onChange={(e) => setNewCoupon({ ...newCoupon, validity: e.target.value })}
-              className="flex-1 p-2 border rounded"
+              className="flex-1 p-2 border rounded w-32"
             />
-            <button type="submit" className="bg-[#229799] text-white px-4 py-2 rounded">
+          </div>
+          <button type="submit" className="bg-[#229799] text-white px-4 py-2 rounded flex justify-center w-full mt-5">
               Create Coupon
             </button>
-          </div>
         </form>
         <div className="space-y-4">
           {coupons.map((coupon) => (

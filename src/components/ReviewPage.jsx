@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
+import { useParams } from 'react-router-dom';
 import { 
   Box, 
   Card, 
@@ -67,10 +68,13 @@ const ReviewCard = ({
   subtext, 
   onSubmit, 
   onSkip, 
+  onNoThanks,
   googleReviewUrl, 
   type, 
   storeId, 
-  staffId 
+  staffId,
+  currentReview,
+  reviewersName
 }) => {
   const [rating, setRating] = useState(null);
   const [reviewTitle, setReviewTitle] = useState('');
@@ -87,7 +91,7 @@ const ReviewCard = ({
     } else {
       try {
         let endpoint = '';
-        let data = { rating, title: reviewTitle, content: reviewContent };
+        let data = { name: reviewersName, rating, title: reviewTitle, content: reviewContent };
 
         switch (type) {
           case 'restaurant':
@@ -109,16 +113,24 @@ const ReviewCard = ({
     }
   };
 
+  useEffect(()=>{
+    setReviewTitle("");
+    setReviewContent("")
+  }, [currentReview])
+
   const handleDialogClose = (redirect) => {
     setOpenDialog(false);
     if (redirect) {
       window.open(googleReviewUrl, '_blank');
     }
+    else{
+      onNoThanks();
+    }
     onSubmit();
   };
 
   return (
-    <Card sx={{ maxWidth: 400, margin: 'auto', mt: 4, borderRadius: "10px"}}>
+    <Card sx={{ maxWidth: '95%', margin: 'auto', borderRadius: "10px"}}>
       <CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <IconButton color="primary" sx={{ mr: 1 }}>
@@ -168,7 +180,7 @@ const ReviewCard = ({
                 variant="outlined"
                 value={reviewTitle}
                 onChange={(e) => setReviewTitle(e.target.value)}
-                sx={{ mb: 2 }}
+                sx={{ my: 2 }}
               />
               <TextField
                 fullWidth
@@ -218,15 +230,14 @@ const ReviewCard = ({
   );
 };
 
-const ReviewPage = () => {
+const ReviewPage = ({reviewersName}) => {
   const [currentReview, setCurrentReview] = useState(0);
-  const [storeId, setStoreId] = useState(null);
   const [staffId, setStaffId] = useState(null);
+  const { storeId } = useParams()
 
   useEffect(() => {
-    // Simulating fetching storeId and staffId
-    setStoreId(1);
-    setStaffId(1);
+  
+
   }, []);
 
   const reviews = [
@@ -256,9 +267,14 @@ const ReviewPage = () => {
     setCurrentReview((prev) => prev + 1);
   };
 
+  const handleNoThanks = () => {
+    setCurrentReview((prev) => prev)
+  }
+
   if (currentReview >= reviews.length) {
     return (
-      <Card sx={{ maxWidth: 400, margin: 'auto', mt: 4 }}>
+      <div>
+        <Card sx={{ maxWidth: 400, margin: 'auto', mt: 4 }}>
         <CardContent>
           <Typography variant="h5" component="div" gutterBottom>
             Thank you for your feedback!
@@ -267,7 +283,8 @@ const ReviewPage = () => {
             We appreciate you taking the time to share your experience with us.
           </Typography>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     );
   }
    
@@ -276,8 +293,11 @@ const ReviewPage = () => {
       {...reviews[currentReview]}
       onSubmit={handleSubmit}
       onSkip={handleSkip}
+      onNoThanks={handleNoThanks}
       storeId={storeId}
       staffId={staffId}
+      currentReview={currentReview}
+      reviewersName={reviewersName}
     />
   );
 };

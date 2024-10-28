@@ -8,7 +8,7 @@ import ReactSlider from 'react-slider'
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 
-export default function PaymentPage() {
+export default function PaymentPage({setAmount, setTransaction_id, setPayment_mode, setReceivers_name, setDateAndTime}) {
   const { storeId } = useParams()
   const navigate = useNavigate()
   const [billAmount, setBillAmount] = useState('')
@@ -22,6 +22,7 @@ export default function PaymentPage() {
   const [showGlow, setShowGlow] = useState(false)
   const sliderRef = useRef(null)
   const [imageUrls, setImageUrls] = useState("")
+  const [staffUrls, setStaffUrls] = useState()
 
   useEffect(() => {
     fetchStoreAndHelpers()
@@ -34,6 +35,9 @@ export default function PaymentPage() {
       console.log('Fetching store and helpers for storeId:', storeId)
       const imageUrlsResponse = await axios.get(`http://localhost:3000/api/store/image-urls/${storeId}`);
       setImageUrls(imageUrlsResponse.data);
+      const staffUrlsResponse = await axios.get(`http://localhost:3000/api/store/staff-image-urls/${storeId}`);
+      setStaffUrls(staffUrlsResponse.data.staffPhotoUrls);
+      console.log("StaffUrl", staffUrlsResponse.data.staffPhotoUrls);
       const storeResponse = await axios.get(`http://localhost:3000/api/store/${storeId}`)
       console.log('Store data:', storeResponse.data)
       setStore(storeResponse.data)
@@ -73,28 +77,34 @@ export default function PaymentPage() {
   }
 
   const handlePayment = async () => {
-    if (totalAmount === 0 || selectedHelper == null) {
+    if (totalAmount === 0 || selectedHelper == null && helpers.length>0) {
       setShowGlow(true)
       setTimeout(() => setShowGlow(false), 1000)
       return
     }
+    setAmount(parseFloat(billAmount)+parseFloat(tipAmount))
+    setTransaction_id("T"+(Math.random()*759263))
+    setPayment_mode("UPI")
+    setReceivers_name(selectedHelper.name + " and " + store.ownerName)
+    setDateAndTime(Date.now())
+    // try {
+    //   const response = await axios.post('http://localhost:3000/api/transaction/upi-payment', {
+    //     storeId: parseInt(storeId),
+    //     staffId: selectedHelper ? selectedHelper.id : null,
+    //     bill: parseFloat(billAmount),
+    //     tip: parseFloat(tipAmount),
+    //     customerName: '', // Add customer details if available
+    //     customerEmail: '',
+    //     customerPhone: '',
+    //   })
+    //   console.log('Payment initiated:', response.data)
+    //   // Handle successful payment initiation (e.g., show QR code, redirect to UPI app)
+    // } catch (error) {
+    //   console.error('Payment initiation failed:', error)
+    //   // Handle payment initiation failure (e.g., show error message)
+    // }
 
-    try {
-      const response = await axios.post('http://localhost:3000/api/transaction/upi-payment', {
-        storeId: parseInt(storeId),
-        staffId: selectedHelper ? selectedHelper.id : null,
-        bill: parseFloat(billAmount),
-        tip: parseFloat(tipAmount),
-        customerName: '', // Add customer details if available
-        customerEmail: '',
-        customerPhone: '',
-      })
-      console.log('Payment initiated:', response.data)
-      // Handle successful payment initiation (e.g., show QR code, redirect to UPI app)
-    } catch (error) {
-      console.error('Payment initiation failed:', error)
-      // Handle payment initiation failure (e.g., show error message)
-    }
+    navigate(`/payment-success/${storeId}`)
   }
 
   const totalAmount = (parseFloat(billAmount) || 0) + (parseFloat(tipAmount) || 0)
@@ -215,10 +225,11 @@ export default function PaymentPage() {
             </div>
           </div>
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Choose Helper</h3>
+            
             <div className={`relative rounded-lg ${showGlow ? 'animate-glow' : ''}`}>
               {helpers.length > 0 ? (
                 <>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Choose Helper</h3>
                   <button
                     onClick={prevSlide}
                     className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white bg-opacity-50 p-2 rounded-full shadow-md"
@@ -232,7 +243,7 @@ export default function PaymentPage() {
                           selectedHelper && selectedHelper.id === helper.id ? 'scale-110 z-10' : 'scale-90 opacity-50'
                         }`}>
                           <img
-                            src={helper.photo || default_person}
+                            src={staffUrls ? staffUrls[helper.id] : default_person}
                             alt={helper.name}
                             className="w-20 h-20 rounded-full object-cover mb-2"
                           />
@@ -253,7 +264,7 @@ export default function PaymentPage() {
                   </button>
                 </>
               ) : (
-                <div>No helpers available</div>
+                <div></div>
               )}
             </div>
           </div>
@@ -277,7 +288,7 @@ export default function PaymentPage() {
           <button
             onClick={handlePayment}
             className={`w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#229799] hover:bg-[#1b7b7d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#229799] ${
-              totalAmount === 0 || selectedHelper == null ? 'opacity-50 cursor-not-allowed' : ''
+              totalAmount === 0 || selectedHelper == null && helpers.length>0 ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             <CreditCard className="inline-block mr-2" size={20} />
@@ -294,12 +305,12 @@ function ProfileHeader({ imageUrls, store }) {
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div 
         className="h-48 bg-cover bg-center"
-        style={{ backgroundImage: `url("${imageUrls.logoUrl || '/placeholder.svg?height=200&width=800'}")` }}
+        style={{ backgroundImage: `url("${imageUrls.coverUrl || '/placeholder.svg?height=200&width=800'}")` }}
       ></div>
       <div className="p-6 -mt-16 relative">
         <div className="flex flex-col md:flex-row items-center md:items-end space-y-4 md:space-y-0 md:space-x-6">
           <img
-            src={imageUrls.ownerPhotoUrl || '/placeholder.svg?height=100&width=100'}
+            src={imageUrls.logoUrl || '/placeholder.svg?height=100&width=100'}
             alt="Store Logo"
             className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
           />

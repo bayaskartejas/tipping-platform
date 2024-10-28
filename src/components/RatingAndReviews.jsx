@@ -1,22 +1,28 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { Star, X } from 'lucide-react'
 
-const reviews = [
-  { id: 1, name: 'Alice', rating: 5, comment: 'Excellent service!' },
-  { id: 2, name: 'Bob', rating: 4, comment: 'Very attentive and friendly.' },
-  { id: 3, name: 'Charlie', rating: 5, comment: 'Made our evening special.' },
-  { id: 4, name: 'Diana', rating: 4, comment: 'Great recommendations.' },
-  { id: 5, name: 'Eve', rating: 5, comment: 'Always smiling and helpful.' },
-  { id: 6, name: 'Frank', rating: 4, comment: 'Prompt and efficient service.' },
-  { id: 7, name: 'Grace', rating: 5, comment: 'Went above and beyond.' },
-  { id: 8, name: 'Henry', rating: 4, comment: 'Very professional.' },
-  { id: 9, name: 'Ivy', rating: 5, comment: 'Made us feel welcome.' },
-  { id: 10, name: 'Jack', rating: 4, comment: 'Knowledgeable about the menu.' },
-]
 
-export default function RatingAndReviews() {
+export default function RatingAndReviews({staffData}) {
+  let reviews = [
+    { id: 1, name: 'Alice', rating: 5, comment: 'Excellent service!' },
+    { id: 2, name: 'Bob', rating: 4, comment: 'Very attentive and friendly.' },
+    { id: 3, name: 'Charlie', rating: 5, comment: 'Made our evening special.' },
+    { id: 4, name: 'Diana', rating: 4, comment: 'Great recommendations.' },
+    { id: 5, name: 'Eve', rating: 5, comment: 'Always smiling and helpful.' },
+    { id: 6, name: 'Frank', rating: 4, comment: 'Prompt and efficient service.' },
+    { id: 7, name: 'Grace', rating: 5, comment: 'Went above and beyond.' },
+    { id: 8, name: 'Henry', rating: 4, comment: 'Very professional.' },
+    { id: 9, name: 'Ivy', rating: 5, comment: 'Made us feel welcome.' },
+    { id: 10, name: 'Jack', rating: 4, comment: 'Knowledgeable about the menu.' },
+  ]
   const [showAllReviews, setShowAllReviews] = useState(false)
   const scrollRef = useRef(null)
+
+  useEffect(()=>{
+    if(staffData){
+      reviews = staffData.reviews 
+    }
+  },[])
 
   useEffect(() => {
     const el = scrollRef.current
@@ -39,13 +45,13 @@ export default function RatingAndReviews() {
     <div className="bg-white rounded-lg shadow-md p-6 max-w-full relative">
       <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
         <div className="flex items-center space-x-2 md:text-left text-center w-full md:w-auto">
-          <span className="text-3xl font-bold text-gray-800">4.5</span>
+          <span className="text-3xl font-bold text-gray-800">{staffData ? staffData.avgRating : 4}</span>
           <div className="flex">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
                 className={`w-6 h-6 ${
-                  star <= 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                  star <= staffData ? staffData.avgRating : 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'
                 }`}
               />
             ))}

@@ -1,7 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { Star, X } from 'lucide-react'
 
-const reviews = [
+export default function RestaurantReviews({storeData}) {
+const [showAllRestReviews, setShowAllRestReviews] = useState(false)
+const scrollRef = useRef(null)
+let reviews = [
   { id: 1, name: 'Alice Johnson', rating: 5, comment: 'Excellent food and atmosphere! Will definitely come back.' },
   { id: 2, name: 'Bob Smith', rating: 4, comment: 'Great service and delicious dishes. Highly recommended.' },
   { id: 3, name: 'Charlie Brown', rating: 5, comment: 'The best restaurant in town. Love the ambiance.' },
@@ -13,14 +16,16 @@ const reviews = [
   { id: 9, name: 'Irene Adler', rating: 5, comment: "The chef's special was out of this world. Highly impressed." },
   { id: 10, name: 'Jack Sparrow', rating: 4, comment: 'Arrr! The seafood platter was a treasure trove of flavors!' },
 ]
-
-export default function RestaurantReviews() {
-const [showAllRestReviews, setShowAllRestReviews] = useState(false)
-const scrollRef = useRef(null)
-
+  useEffect(()=>{
+    if(storeData.reviews && storeData.reviews.length > 0){
+      reviews = storeData.reviews
+    }
+  },[])
   useEffect(() => {
     const el = scrollRef.current
     let scrollInterval
+    console.log(storeData);
+    
 
     if (el) {
       scrollInterval = setInterval(() => {
@@ -40,13 +45,13 @@ const scrollRef = useRef(null)
       <h2 className="text-2xl font-bold mb-4">Restaurant Reviews</h2>
       <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
         <div className="flex items-center space-x-2 md:text-left text-center w-full md:w-auto">
-          <span className="text-3xl font-bold text-gray-800">4.5</span>
+          <span className="text-3xl font-bold text-gray-800">{storeData.avgRating}</span>
           <div className="flex">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
                 className={`w-6 h-6 ${
-                  star <= 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                  star <= storeData.avgRating ? 'text-yellow-400 fill-current' : 'text-gray-300'
                 }`}
               />
             ))}

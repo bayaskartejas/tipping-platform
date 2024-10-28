@@ -1,133 +1,389 @@
-import React, { useRef, useState } from 'react';
-import axios from "axios"; // Ensure axios is imported
+import React, { useState, useEffect } from 'react';
+import axios from "axios";
 import { useSetRecoilState } from 'recoil';
 import { Signin2 } from './States';
 import { Loader2 } from 'lucide-react';
 import { WarningAlert } from './Alerts';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Grid,
+  Paper,
+  IconButton,
+} from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
+
+const steps = ['Personal Info', 'Work Details', 'Create Password'];
 
 function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify, setUserType }) {
-    const setSignin = useSetRecoilState(Signin2);
-    const firstNameRef = useRef();
-    const lastNameRef = useRef();
-    const emailRef = useRef();
-    const aadhaarRef = useRef();
-    const upiRef = useRef();  
-    const genderRef = useRef();
-    const ageDayRef = useRef();     
-    const ageMonthRef = useRef();
-    const ageYearRef = useRef();
-    const storeIdRef = useRef(); 
-    const numberRef = useRef();
-    const [showWarning, setWarning] = useState(false)
-    const [warningMessage, setWarningMessage] = useState("")
-    const [isLoading, setLoading] = useState(false)
+  const setSignin = useSetRecoilState(Signin2);
+  const [activeStep, setActiveStep] = useState(0);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    mobileNumber: '',
+    gender: '',
+    day: '',
+    month: '',
+    year: '',
+    aadhaar: '',
+    upi: '',
+    storeId: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [showWarning, setWarning] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
+  const [isLoading, setLoading] = useState(false);
+  const [isNextDisabled, setIsNextDisabled] = useState(true);
 
-    async function handleSubmit(e) {
-        e.preventDefault();
-        setLoading(true)
-        if (genderRef.current.value === "Select") {
-            setWarningMessage("Select gender properly");
-            setWarning(true)
-            setLoading(false)
-            return;
-        }
+  useEffect(() => {
+    validateStep();
+  }, [formData, activeStep]);
 
-        // Gather the data to be sent to the backend
-        const waiterData = {
-            storeId: storeIdRef.current.value,
-            name: `${firstNameRef.current.value} ${lastNameRef.current.value}`, // Combining first and last name
-            email: emailRef.current.value,
-            aadhaar: parseInt(aadhaarRef.current.value),
-            upi: upiRef.current.value,
-            dob: `${ageYearRef.current.value}-${ageMonthRef.current.value}-${ageDayRef.current.value}`, // Format: YYYY-MM-DD
-            gender: genderRef.current.value,
-            number: parseInt(numberRef.current.value)
-        };
+  const handleChange = (e) => {
+    const { name, value } = e.target;    
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-        try {
-            // Send a POST request to the backend
-            const response = await axios.post('http://localhost:3000/api/staff/register', waiterData);
-            sessionStorage.setItem("email", emailRef.current.value)
-            sessionStorage.setItem("storeId", storeIdRef.current.value)
-            setShowOtpVerify(true); // Show OTP verification component
-            setShowWaiterSignup(false); // Close the signup form
-            setUserType("staff")
-            setLoading(false)
-        } catch (error) {
-            setWarning(true)
-            setWarningMessage(error.response.data.error)
-            setLoading(false) 
-        }
+  const validateStep = () => {
+    switch (activeStep) {
+      case 0:
+        setIsNextDisabled(
+          !formData.firstName || !formData.lastName || !formData.email ||
+          !formData.mobileNumber || !formData.gender || !formData.day ||
+          !formData.month || !formData.year
+        );
+        break;
+      case 1:
+        setIsNextDisabled(!formData.aadhaar || !formData.upi || !formData.storeId);
+        break;
+      case 2:
+        setIsNextDisabled(!formData.password || !formData.confirmPassword);
+        break;
+      default:
+        setIsNextDisabled(false);
+    }
+  };
+
+  const handleNext = () => {
+    if (activeStep === steps.length - 1) {
+      handleSubmit();
+    } else {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    if (formData.password !== formData.confirmPassword) {
+      setWarningMessage("Passwords do not match");
+      setWarning(true);
+      setLoading(false);
+      return;
     }
 
-    return (
-        <div>
+    const waiterData = {
+      storeId: formData.storeId,
+      name: `${formData.firstName} ${formData.lastName}`,
+      email: formData.email,
+      aadhaar: parseInt(formData.aadhaar),
+      upi: formData.upi,
+      dob: `${formData.year}-${formData.month}-${formData.day}`,
+      gender: formData.gender,
+      number: parseInt(formData.mobileNumber),
+      password: formData.password,
+    };
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/staff/register', waiterData);
+      sessionStorage.setItem("email", formData.email);
+      sessionStorage.setItem("storeId", formData.storeId);
+      setShowOtpVerify(true);
+      setShowWaiterSignup(false);
+      setUserType("staff");
+    } catch (error) {
+      setWarning(true);
+      setWarningMessage(error.response?.data?.error || "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return (
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                fullWidth
+                label="First Name"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                fullWidth
+                label="Last Name"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Mobile Number"
+                name="mobileNumber"
+                type="number"
+                value={formData.mobileNumber}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth required>
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  name="gender"
+                  label="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth required>
+                <InputLabel >Day</InputLabel>
+                <Select
+                  name='day'
+                  label="day"
+                  value={formData.day}
+                  onChange={handleChange}
+                >
+                  {[...Array(31)].map((_, i) => (
+                    <MenuItem key={i + 1} value={String(i + 1).padStart(2, '0')}>
+                      {String(i + 1).padStart(2, '0')}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth required>
+                <InputLabel>Month</InputLabel>
+                <Select
+                  name='month'
+                  label="month"
+                  value={formData.month}
+                  onChange={handleChange}
+                >
+                  {[...Array(12)].map((_, i) => (
+                    <MenuItem key={i + 1} value={String(i + 1).padStart(2, '0')}>
+                      {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth required>
+                <InputLabel>Year</InputLabel>
+                <Select
+                  name='year'
+                  label="year"
+                  value={formData.year}
+                  onChange={handleChange}
+                >
+                  {[...Array(100)].map((_, i) => (
+                    <MenuItem key={i} value={String(new Date().getFullYear() - i)}>
+                      {new Date().getFullYear() - i}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        );
+      case 1:
+        return (
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Aadhaar Number"
+                name="aadhaar"
+                type="number"
+                value={formData.aadhaar}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="UPI ID"
+                name="upi"
+                value={formData.upi}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Store ID"
+                name="storeId"
+                value={formData.storeId}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+          </Grid>
+        );
+      case 2:
+        return (
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Confirm Password"
+                name="confirmPassword"
+                type="password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+          </Grid>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, bgcolor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
       {showWarning && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm ">
+        <Box sx={{ position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 1100, width: '100%', maxWidth: 'sm' }}>
           <WarningAlert message={warningMessage} onClose={() => setWarning(false)} />
-        </div>
+        </Box>
       )}
-            <div className='bg-white animate-popup w-72 sm:w-96 h-max justify-self-center shadow-lg rounded-lg md:px-7 px-4 py-8 transform transition-transform duration-300 scale-95'>
-            <div className='flex justify-between'>
-                <h1 className='justify-center flex text-2xl font-medium'>Create an Account</h1> 
-                <svg onClick={() => setShowWaiterSignup(false)} className='cursor-pointer' xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 48 48">
-                    <path d="M 39.486328 6.9785156 A 1.50015 1.50015 0 0 0 38.439453 7.4394531 L 24 21.878906 L 9.5605469 7.4394531 A 1.50015 1.50015 0 0 0 8.484375 6.984375 A 1.50015 1.50015 0 0 0 7.4394531 9.5605469 L 21.878906 24 L 7.4394531 38.439453 A 1.50015 1.50015 0 1 0 9.5605469 40.560547 L 24 26.121094 L 38.439453 40.560547 A 1.50015 1.50015 0 1 0 40.560547 38.439453 L 26.121094 24 L 40.560547 9.5605469 A 1.50015 1.50015 0 0 0 39.486328 6.9785156 z"></path>
-                </svg>
-            </div>
-            <div className='text-sm text-slate-500'>For Waiters / Helpers</div>
-            <div className='border mt-2'></div>
-            <form onSubmit={handleSubmit}>
-                <div className='flex mt-3'>
-                    <input type="text" className='w-full h-8 mr-2 border-2 border-gray-300 placeholder:text-gray-500 pl-3 rounded-md text-sm' ref={firstNameRef} placeholder='First Name' required />
-                    <input type="text" className='w-full h-8 ml-2 border-2 border-gray-300 placeholder:text-gray-500 pl-3 rounded-md text-sm' ref={lastNameRef} placeholder='Last Name' required />
-                </div>
-                <input type="email" className='w-full h-8 mt-2 border-2 border-gray-300 placeholder:text-gray-500 rounded-md text-sm pl-3' ref={emailRef} placeholder='Email Address' required />
-                <input type="number" className='w-full h-8 mt-2 border-2 border-gray-300 placeholder:text-gray-500 rounded-md text-sm pl-3' ref={aadhaarRef} placeholder='Aadhaar Card' required />
-                <input type="number" className='w-full h-8 mt-2 border-2 border-gray-300 placeholder:text-gray-500 rounded-md text-sm pl-3' ref={storeIdRef} placeholder='Store ID' required />
-                <input type="number" className='w-full h-8 mt-2 border-2 border-gray-300 placeholder:text-gray-500 rounded-md text-sm pl-3' ref={numberRef} placeholder='Mobile Number' required />
-                <input type="text" className='w-full h-8 mt-2 border-2 border-gray-300 placeholder:text-gray-500 rounded-md text-sm pl-3' ref={upiRef} placeholder='UPI ID' required />
-                <div className='text-sm mt-3 mb-1 text-gray-500'>Date of Birth</div>
-                <div className='mb-2 flex'>
-                    <select ref={ageDayRef} className="pl-3 md:w-32 w-full md:mr-1 mr-3 md:h-9 h-8 rounded-md bg-white border-2 border-gray-300 text-gray-500 text-sm" aria-label="Day" required>
-                        <option value="Day">Day</option>
-                        {[...Array(31)].map((_, i) => (
-                            <option key={i + 1} value={String(i + 1).padStart(2, '0')}>{String(i + 1).padStart(2, '0')}</option>
-                        ))}
-                    </select>
-                    <select ref={ageMonthRef} className="pl-3 w-full h-8 md:w-32 md:mr-1 mr-3 md:h-9 rounded-md bg-white border-2 text-sm border-gray-300 text-gray-500" aria-label="Month" required>
-                        <option value="Month">Month</option>
-                        {[...Array(12)].map((_, i) => (
-                            <option key={i + 1} value={String(i + 1).padStart(2, '0')}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>
-                        ))}
-                    </select>
-                    <select ref={ageYearRef} className="pl-3 w-full h-8 md:w-32 md:h-9 rounded-md bg-white border-2 text-sm border-gray-300 text-gray-500" aria-label="Year" required>
-                        <option value="Year">Year</option>
-                        {[...Array(100)].map((_, i) => (
-                            <option key={i + 1920} value={2023 - i}>{2023 - i}</option>
-                        ))}
-                    </select>
-                </div>
-                <div className='flex mt-2'>
-                    <select ref={genderRef} className='w-full h-8 border-2 border-gray-300 pl-3 rounded-md text-sm text-gray-500' aria-label="Gender" required>
-                        <option value="Select">Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div className='flex justify-center'>
-                    <button type='submit' className='flex text-white text-lg bg-[#229799] hover:bg-[#229799] w-full py-2 rounded-md hover:bg-green-101 transition delay-100 hover:shadow-md justify-center mt-4'>
-                    {isLoading ? <Loader2 className="animate-spin" /> : "Sign up"}
-                    </button>
-                </div>
-            </form>
-            <div className='flex justify-center text-sm text-slate-500 mt-4'>
-                <div>Already have an account?</div>
-                <button onClick={() => { setShowWaiterSignup(false); setSignin(true) }} className='text-[#229799] font-semibold ml-1'>Sign In</button>
-            </div>
-        </div>
-        </div>
-    );
+      <Paper sx={{ width: '100%', maxWidth: 400, p: 3, borderRadius: 2, maxHeight: '90vh', overflowY: 'auto' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" component="h2">Create Waiter Account</Typography>
+          <IconButton onClick={() => setShowWaiterSignup(false)} size="small">
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <Box sx={{ display: 'flex', mb: 3 }}>
+          {steps.map((label, index) => (
+            <React.Fragment key={label}>
+              <Box
+                sx={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: '50%',
+                  bgcolor: index === activeStep ? '#229799' : '#e0e0e0',
+                  color: index === activeStep ? 'white' : 'black',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                }}
+              >
+                {index + 1}
+              </Box>
+              {index < steps.length - 1 && (
+                <Box
+                  sx={{
+                    flex: 1,
+                    height: 1,
+                    bgcolor: index < activeStep ? '#229799' : '#e0e0e0',
+                    my: 'auto',
+                  }}
+                />
+              )}
+            </React.Fragment>
+          ))}
+        </Box>
+        <Typography variant="subtitle1" sx={{ mb: 2, fontWeight:500, fontSize:"20px" }}>{steps[activeStep]}</Typography>
+        <Box sx={{ mt: 2, mb: 2 }}>
+          {renderStepContent(activeStep)}
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+          <Button
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            sx={{ visibility: activeStep === 0 ? 'hidden' : 'visible' }}
+          >
+            Back
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleNext}
+            disabled={isNextDisabled}
+            sx={{ bgcolor: '#229799', '&:hover': { bgcolor: '#1b7b7d' }, '&:disabled': { bgcolor: '#a0a0a0' } }}
+          >
+            {activeStep === steps.length - 1 ? (isLoading ? <Loader2 className="animate-spin" /> : 'Sign Up') : 'Next'}
+          </Button>
+        </Box>
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Typography variant="body2" color="text.secondary">
+            Already have an account?{' '}
+            <Button
+              onClick={() => { setShowWaiterSignup(false); setSignin(true); }}
+              sx={{ p: 0, minWidth: 0, verticalAlign: 'baseline', color: '#229799' }}
+            >
+              Sign in
+            </Button>
+          </Typography>
+        </Box>
+      </Paper>
+    </Box>
+  );
 }
 
 export default WaiterSignup;

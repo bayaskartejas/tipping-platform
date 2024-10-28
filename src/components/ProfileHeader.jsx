@@ -1,14 +1,16 @@
 import React, { useState, useRef } from 'react'
 import axios from 'axios'
 import { Edit2, Check, X } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
-export default function ProfileHeader() {
+export default function ProfileHeader({ staffData, fetchStaffData, imageUrls }) {
   const [isHovered, setIsHovered] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const [name, setName] = useState("John Doe")
+  const [name, setName] = useState("")
   const [isEditingName, setIsEditingName] = useState(false)
   const [tempName, setTempName] = useState("")
+  const [loading, setLoading] = useState(false)
   const fileInputRef = useRef(null)
 
   const handleImageChange = (event) => {
@@ -16,7 +18,7 @@ export default function ProfileHeader() {
     if (file) {
       const reader = new FileReader()
       reader.onloadend = () => {
-        setSelectedImage(reader.result)
+        setSelectedImage(file)
         setShowConfirmation(true)
       }
       reader.readAsDataURL(file)
@@ -24,45 +26,34 @@ export default function ProfileHeader() {
   }
 
   const handleConfirmImage = async () => {
+    setLoading(true)
     try {
-      const formData = new FormData()
-      formData.append('image', fileInputRef.current.files[0])
-
-      await axios.post('/api/update-profile-image', formData, {
+      const response = await axios.post('http://localhost:3000/api/staff/update-logo', {
+        logoFile: selectedImage ? {
+          contentType: selectedImage.type
+        } : null,
+        number: staffData.number
+      }, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem("token")}`,
         },
       })
 
+      await axios.put(response.data.logoPutUrl, selectedImage, {
+        headers: { 'Content-Type': selectedImage.type }
+      })
       setShowConfirmation(false)
+      setLoading(false)
+      window.location.reload();
     } catch (error) {
-      console.error('Error updating profile image:', error)
+      console.error('Error updating logo:', error)
     }
   }
 
   const handleCancelImage = () => {
+    setLoading(false)
     setSelectedImage(null)
     setShowConfirmation(false)
-  }
-
-  const handleEditName = () => {
-    setIsEditingName(true)
-    setTempName(name)
-  }
-
-  const handleSaveName = async () => {
-    try {
-      await axios.post('/api/update-profile-name', { name: tempName })
-      setName(tempName)
-      setIsEditingName(false)
-    } catch (error) {
-      console.error('Error updating profile name:', error)
-    }
-  }
-
-  const handleCancelNameEdit = () => {
-    setIsEditingName(false)
-    setTempName("")
   }
 
   return (
@@ -74,7 +65,7 @@ export default function ProfileHeader() {
           onMouseLeave={() => setIsHovered(false)}
         >
           <img
-            src={selectedImage || "/placeholder.svg?height=100&width=100"}
+            src={imageUrls}
             alt="Helper Profile"
             className="w-24 h-24 rounded-full object-cover"
           />
@@ -96,29 +87,9 @@ export default function ProfileHeader() {
         </div>
         <div className="flex-grow">
           <div className="flex items-center space-x-2">
-            {isEditingName ? (
-              <div className="flex items-center space-x-2 w-full max-w-xs flex-shrink-0">
-                <input
-                  type="text"
-                  value={tempName}
-                  onChange={(e) => setTempName(e.target.value)}
-                  className="text-2xl font-bold text-gray-800 border-b-2 border-[#229799] focus:outline-none w-full"
-                />
-                <button onClick={handleSaveName} className="text-[#229799] hover:text-[#1b7b7d]">
-                  <Check size={20} />
-                </button>
-                <button onClick={handleCancelNameEdit} className="text-red-500 hover:text-red-600">
-                  <X size={20} />
-                </button>
-              </div>
-            ) : (
               <div className="flex items-center space-x-2">
-                <h1 className="text-2xl font-bold text-gray-800">{name}</h1>
-                <button onClick={handleEditName} className="text-[#229799] hover:text-[#1b7b7d]">
-                  <Edit2 size={20} />
-                </button>
+                <h1 className="text-2xl font-bold text-gray-800">{staffData ? staffData.name : "Heello"}</h1>
               </div>
-            )}
           </div>
           {/* Ensure this div has no width issue */}
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -130,26 +101,19 @@ export default function ProfileHeader() {
       {showConfirmation && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+            <div className='text-red-600'>{selectedImage.size > 5 * 1024 * 1024 ? "File size should not be more than 5 MB" : ""}</div>
+          {loading ? <Loader2 className="animate-spin h-12 w-12 mb-4" /> : <></>}
             <div className="flex justify-center mb-4">
               <img
-                src={selectedImage}
-                alt="Selected Profile"
+                src={URL.createObjectURL(selectedImage)}
+                alt="Selected Image"
                 className="w-32 h-32 rounded-full object-cover"
               />
             </div>
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={handleConfirmImage}
-                className="bg-[#229799] text-white px-4 py-2 rounded-md hover:bg-[#1b7b7d] transition-colors duration-300"
-              >
-                Confirm
-              </button>
-              <button
-                onClick={handleCancelImage}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition-colors duration-300"
-              >
-                Cancel
-              </button>
+            <p className="text-center">Confirm to update your logo?</p>
+            <div className="flex justify-center space-x-4 mt-4">
+              <button disabled={selectedImage.size > 5 * 1024 * 1024} onClick={handleConfirmImage} className="bg-[#229799] text-white px-4 py-2 rounded">Confirm</button>
+              <button onClick={handleCancelImage} className="bg-gray-300 text-gray-700 px-4 py-2 rounded">Cancel</button>
             </div>
           </div>
         </div>

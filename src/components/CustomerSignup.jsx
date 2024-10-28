@@ -18,15 +18,24 @@ export default function CustomerSignup({ setShowCustomerSignup, setShowOtpVerify
   const [isLoading, setLoading] = useState(false)
   const [showWarning, setWarning] = useState(false)
   const [warningMessage, setWarningMessage] = useState("")
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true)
+    if (password !== confirmPassword) {
+      setWarning(true);
+      setWarningMessage("Passwords do not match");
+      setLoading(false);
+      return;
+    }
     // Prepare the data for the POST request
     const customerData = {
       name: `${firstName} ${lastName}`, // Combine first and last name
       email: email,
       phone: mobile,
+      password: password
     };
 
     try {
@@ -39,6 +48,7 @@ export default function CustomerSignup({ setShowCustomerSignup, setShowOtpVerify
         setShowCustomerSignup(false);
         setShowOtpVerify(true);
         setUserType("customer")
+        localStorage.setItem("token", response.data.token)
       }
     } catch (error) {
       setWarning(true)
@@ -104,6 +114,30 @@ export default function CustomerSignup({ setShowCustomerSignup, setShowOtpVerify
                 required
               />
         </div>
+        <>
+            <TextField
+              fullWidth
+              label="Password"
+              variant="outlined"
+              margin="normal"
+              required
+              type="password"
+              sx={{ my: 1 }}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Confirm Password"
+              variant="outlined"
+              margin="normal"
+              required
+              type="password"
+              sx={{ my: 1 }}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </>
         <button 
           type='submit' 
           className='flex text-white text-lg bg-[#229799] hover:bg-[#1b7b7d] w-full py-2 rounded-md transition delay-100 hover:shadow-md justify-center'>

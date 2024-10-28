@@ -88,7 +88,7 @@ function HowItWorks() {
 
       {/* Content on top of the overlay */}
       <div className="relative z-10 container mx-auto px-4">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-6 text-white">
+        <h2 className="text-3xl md:text-5xl font-bold text-center mb-6 text-white">
           How does <span className="text-[#229799]">cashless tipping</span> work?
         </h2>
         <p className="text-center text-gray-200 mb-12 max-w-3xl mx-auto hidden sm:flex">

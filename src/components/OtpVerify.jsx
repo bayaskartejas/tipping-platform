@@ -52,8 +52,10 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
         response = await axios.post(`${BASE_URL}/verify-otp-customer`, { email, otp });
       } else if (userType === "store") {
         response = await axios.post(`${BASE_URL}/verify-otp-owner`, { email, otp });
+        localStorage.setItem("storeId", response.data.storeId)
       } else if (userType === "staff") {
         response = await axios.post('http://localhost:3000/api/staff/verify', { email, otp, storeId });
+        localStorage.setItem("storeId", response.data.storeId)
       } else {
         throw new Error('Invalid user type');
       }
@@ -61,7 +63,6 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
       if (response.data.token) {
         localStorage.setItem("token", response.data.token) 
         console.log('Token set:', response.data.token);
-        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
     }
      else {
         setError('Authentication data is missing from the response.');
@@ -75,7 +76,7 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
       setTimeout(() => {
         setShowOtpVerify(false);
         setShowSuccess(false);
-        navigate(userType === 'customer' ? '/customer' : userType === 'store' ? '/owner' : '/helper');
+        navigate(userType === 'customer' ? '/customer' : userType === 'store' ? '/store' : '/staff');
       }, 2000);
     } catch (error) {
       console.error('OTP verification error:', error);
