@@ -12,6 +12,7 @@ import ReviewPage from './components/ReviewPage'
 import PaymentSuccess from './components/PaymentSucess'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import night from "./assets/night.jpg"
+import CouponSuccess from './components/CouponSuccess'
 import PaymentUnsuccessful from './components/PaymentUnsuccessful'
 const theme = createTheme();
 
@@ -90,6 +91,11 @@ function App() {
           path="/review"
           // element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />}
           element={<div className='h-screen flex relative bg-cover bg-center' style={{ backgroundImage: `url(${night})` }}><ReviewPage reviewersName={reviewersName}/></div>}
+        />
+        <Route
+          path="/coupon-success"
+          // element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />}
+          element={<div className='h-screen flex relative bg-cover bg-center' style={{ backgroundImage: `url(${night})` }}><CouponSuccess /></div>}
         />
       </Routes>
     </div>

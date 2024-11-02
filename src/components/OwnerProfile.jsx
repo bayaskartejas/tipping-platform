@@ -4,6 +4,7 @@ import ProfileHeaderO from './ProfileHeaderO'
 import StaffPerformanceGraph from './StaffPerformanceGraph'
 import RestaurantReviews from './RestaurantReviews'
 import ManageCoupons from './ManageCoupons'
+import CouponSuccess from './CouponSuccess'
 import axios from 'axios'
 import { Loader2 } from 'lucide-react'
 import { 
@@ -28,6 +29,8 @@ export default function OwnerProfile({ onGoBack, user }) {
   const [showLogoConfirmation, setShowLogoConfirmation] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const [showCouponSuccess, setShowCouponSuccess] = useState(false)
+  const [couponDetails, setCouponDetails] = useState({})
   const token = localStorage.getItem("token")
 
   const fetchStoreData = async () => {
@@ -155,6 +158,7 @@ export default function OwnerProfile({ onGoBack, user }) {
   
   return (  
     <div className="min-h-screen bg-gray-100 p-4 md:p-8"> 
+    {showCouponSuccess ? <CouponSuccess couponDetails={couponDetails} onBack={()=>{setShowCouponSuccess(false); setCouponDetails({})}} onCreateAnother={()=> {setShowManageCoupons(true); setShowCouponSuccess(false)}}/> : <></>}
     {loading ? <LoadingOverlay /> : <></>}
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center justify-between mb-4">
@@ -225,7 +229,7 @@ export default function OwnerProfile({ onGoBack, user }) {
         <RestaurantReviews storeData={storeData}/>
       </div>
       {showManageCoupons && (
-        <ManageCoupons onClose={() => setShowManageCoupons(false)} storeId={storeData?.id} />
+        <ManageCoupons onClose={() => setShowManageCoupons(false)} storeId={storeData?.id} setShowCouponSuccess={setShowCouponSuccess} setCouponDetails={setCouponDetails}/>
       )}
       {showLogoConfirmation && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

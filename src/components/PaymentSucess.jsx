@@ -122,7 +122,7 @@ const PaymentSuccess = ({amount, transaction_id, payment_mode, receivers_name, d
             <span>{receivers_name}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Date & Time</span>
+            <span className="text-gray-600">Date</span>
             <span>{new Date().toLocaleString()}</span>
           </div>
         </div>
