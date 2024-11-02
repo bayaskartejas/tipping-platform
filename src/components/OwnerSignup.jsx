@@ -151,7 +151,7 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
 
       console.log("Form Data to be sent:", formData);
 
-      const response = await axios.post('http://localhost:3000/api/store/register', formData);
+      const response = await axios.post('https://tipnex-server.tipnex.com/api/store/register', formData);
       console.log("Server Response:", response.data);
       
       if (response.data.logoPutUrl && storeLogo) {

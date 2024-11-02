@@ -20,13 +20,13 @@ const navigate = useNavigate()
 const fetchStaffData = async () => {
   console.log('Token before fetching:', token);
     try {
-      const response = await axios.get('http://localhost:3000/api/staff/profile', {
+      const response = await axios.get('https://tipnex-server.tipnex.com/api/staff/profile', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       })
       setStaffData(response.data)
-      const imageUrlsResponse = await axios.get(`http://localhost:3000/api/staff/image-urls/${response.data.id}`, {
+      const imageUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/staff/image-urls/${response.data.id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

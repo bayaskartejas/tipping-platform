@@ -4,23 +4,20 @@ import { Star, X } from 'lucide-react'
 export default function RestaurantReviews({storeData}) {
 const [showAllRestReviews, setShowAllRestReviews] = useState(false)
 const scrollRef = useRef(null)
-let reviews = [
-  { id: 1, name: 'Alice Johnson', rating: 5, comment: 'Excellent food and atmosphere! Will definitely come back.' },
-  { id: 2, name: 'Bob Smith', rating: 4, comment: 'Great service and delicious dishes. Highly recommended.' },
-  { id: 3, name: 'Charlie Brown', rating: 5, comment: 'The best restaurant in town. Love the ambiance.' },
-  { id: 4, name: 'Diana Ross', rating: 4, comment: 'Fantastic menu with a wide variety of options. Enjoyed my meal.' },
-  { id: 5, name: 'Eva Green', rating: 5, comment: 'Impeccable service and mouth-watering cuisine. A must-visit!' },
-  { id: 6, name: 'Frank Sinatra', rating: 4, comment: 'Cozy atmosphere and friendly staff. Food was delightful.' },
-  { id: 7, name: 'Grace Kelly', rating: 5, comment: 'An unforgettable dining experience. Will be back soon!' },
-  { id: 8, name: 'Henry Ford', rating: 4, comment: 'Impressive wine selection and tasty appetizers. Great place for a date.' },
-  { id: 9, name: 'Irene Adler', rating: 5, comment: "The chef's special was out of this world. Highly impressed." },
-  { id: 10, name: 'Jack Sparrow', rating: 4, comment: 'Arrr! The seafood platter was a treasure trove of flavors!' },
-]
-  useEffect(()=>{
-    if(storeData.reviews && storeData.reviews.length > 0){
-      reviews = storeData.reviews
-    }
-  },[])
+let reviews;
+// reviews = [
+//   { id: 1, user: 'Alice Johnson', rating: 5, content: 'Excellent food and atmosphere! Will definitely come back.' },
+//   { id: 2, user: 'Bob Smith', rating: 4, content: 'Great service and delicious dishes. Highly recommended.' },
+//   { id: 3, user: 'Charlie Brown', rating: 5, content: 'The best restaurant in town. Love the ambiance.' },
+//   { id: 4, user: 'Diana Ross', rating: 4, content: 'Fantastic menu with a wide variety of options. Enjoyed my meal.' },
+//   { id: 5, user: 'Eva Green', rating: 5, content: 'Impeccable service and mouth-watering cuisine. A must-visit!' },
+//   { id: 6, user: 'Frank Sinatra', rating: 4, content: 'Cozy atmosphere and friendly staff. Food was delightful.' },
+//   { id: 7, user: 'Grace Kelly', rating: 5, content: 'An unforgettable dining experience. Will be back soon!' },
+//   { id: 8, user: 'Henry Ford', rating: 4, content: 'Impressive wine selection and tasty appetizers. Great place for a date.' },
+//   { id: 9, user: 'Irene Adler', rating: 5, content: "The chef's special was out of this world. Highly impressed." },
+//   { id: 10, user: 'Jack Sparrow', rating: 4, content: 'Arrr! The seafood platter was a treasure trove of flavors!' },
+// ]
+
   useEffect(() => {
     const el = scrollRef.current
     let scrollInterval
@@ -33,7 +30,7 @@ let reviews = [
           el.scrollTo({ left: 0, behavior: 'auto' }) // Scroll back to the start instantly
         } else {
           el.scrollBy({ left: 1, behavior: 'auto' }) // Scroll slowly
-        }
+        } 
       }, 30) // Adjust the speed by modifying this value
     }
 
@@ -59,8 +56,8 @@ let reviews = [
         </div>
         <div ref={scrollRef} className="flex-grow overflow-x-hidden w-full">
           <div className="flex space-x-4 pb-4 w-max">
-            {reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} />
+            {storeData.reviews.map((review) => (
+              <ReviewCard key={Math.random()} review={review} />
             ))}
           </div>
         </div>
@@ -81,8 +78,8 @@ let reviews = [
               <X size={24} />
             </button>
             <h2 className="text-2xl font-bold mb-4">All Reviews</h2>
-            {reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} fullWidth />
+            {storeData.reviews.map((review) => (
+              <ReviewCard key={Math.random()} review={review} fullWidth />
             ))}
           </div>
         </div>
@@ -95,7 +92,7 @@ function ReviewCard({ review, fullWidth }) {
   return (
     <div className={`bg-gray-100 rounded-lg p-4 ${fullWidth ? 'w-full mb-4' : 'min-w-[14rem] w-[14rem] max-w-[14rem] flex-shrink-0'}`}>
       <div className="flex items-center space-x-2 mb-2">
-        <span className="font-medium">{review.name}</span>
+        <span className="font-medium">{review.user}</span>
         <div className="flex">
           {[1, 2, 3, 4, 5].map((star) => (
             <Star
@@ -107,7 +104,7 @@ function ReviewCard({ review, fullWidth }) {
           ))}
         </div>
       </div>
-      <p className="text-sm text-gray-600">{review.comment}</p>
+      <p className="text-sm text-gray-600">{review.content}</p>
     </div>
   )
 }

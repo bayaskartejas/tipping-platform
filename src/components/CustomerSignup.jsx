@@ -40,7 +40,7 @@ export default function CustomerSignup({ setShowCustomerSignup, setShowOtpVerify
 
     try {
       // Make the POST request to the backend
-      const response = await axios.post('http://localhost:3000/api/auth/register/customer', customerData);
+      const response = await axios.post('https://tipnex-server.tipnex.com/api/auth/register/customer', customerData);
       
       // Check response status and handle accordingly
       if (response.status === 201) {

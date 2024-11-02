@@ -28,7 +28,7 @@ export default function ProfileHeader({ staffData, fetchStaffData, imageUrls }) 
   const handleConfirmImage = async () => {
     setLoading(true)
     try {
-      const response = await axios.post('http://localhost:3000/api/staff/update-logo', {
+      const response = await axios.post('https://tipnex-server.tipnex.com/api/staff/update-logo', {
         logoFile: selectedImage ? {
           contentType: selectedImage.type
         } : null,

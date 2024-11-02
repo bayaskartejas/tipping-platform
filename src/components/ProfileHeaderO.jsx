@@ -56,7 +56,7 @@ export default function ProfileHeaderO({storeData, imageUrls, profileData}) {
       formData.append('storeId', localStorage.getItem("storeId"))
       formData.append('ownerPhotoFile', selectedImage)
 
-      const response = await axios.post('http://localhost:3000/api/store/update-ownerPhoto', {
+      const response = await axios.post('https://tipnex-server.tipnex.com/api/store/update-ownerPhoto', {
         ownerPhotoFile: selectedImage ? {
           contentType: selectedImage.type
         } : null,
@@ -88,7 +88,7 @@ export default function ProfileHeaderO({storeData, imageUrls, profileData}) {
       formData.append('storeId', localStorage.getItem("storeId"))
       formData.append('coverFile', selectedCoverImage)
 
-      const response = await axios.post('http://localhost:3000/api/store/update-cover', {
+      const response = await axios.post('https://tipnex-server.tipnex.com/api/store/update-cover', {
         cover: selectedCoverImage ? {
           contentType: selectedCoverImage.type
         } : null,

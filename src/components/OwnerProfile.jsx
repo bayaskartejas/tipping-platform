@@ -36,7 +36,7 @@ export default function OwnerProfile({ onGoBack, user }) {
   const fetchStoreData = async () => {
     console.log('Token before fetching:', token);
       try {
-        const response = await axios.get('http://localhost:3000/api/store/profile', {
+        const response = await axios.get('https://tipnex-server.tipnex.com/api/store/profile', {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -60,14 +60,14 @@ export default function OwnerProfile({ onGoBack, user }) {
           setError('Store ID not found. Please log in again.');
           return;
         }
-        const profileResponse = await axios.get(`http://localhost:3000/api/store/${storeId}`, {
+        const profileResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/${storeId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
         setProfileData(profileResponse.data);
 
-        const imageUrlsResponse = await axios.get(`http://localhost:3000/api/store/image-urls/${storeId}`, {
+        const imageUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/image-urls/${storeId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -107,7 +107,7 @@ export default function OwnerProfile({ onGoBack, user }) {
       formData.append('storeId', localStorage.getItem("storeId"))
       formData.append('logoFile', selectedLogoImage)
 
-      const response = await axios.post('http://localhost:3000/api/store/update-logo', {
+      const response = await axios.post('https://tipnex-server.tipnex.com/api/store/update-logo', {
         logoFile: selectedLogoImage ? {
           contentType: selectedLogoImage.type
         } : null,
@@ -127,7 +127,7 @@ export default function OwnerProfile({ onGoBack, user }) {
       setLoading(false)
       // Refresh the page or update the image URL
       fetchStoreData()
-      const imageUrlsResponse = await axios.get(`http://localhost:3000/api/store/image-urls/${localStorage.getItem("storeId")}`, {
+      const imageUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/image-urls/${localStorage.getItem("storeId")}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

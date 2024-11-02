@@ -96,7 +96,7 @@ export default function CustomerProfile() {
   const fetchProfileData = async () => {
     await fetchCustomerData()
     try {
-      const imageUrlsResponse = await axios.get(`http://localhost:3000/api/customer/image-urls/${localStorage.getItem("id")}`, {
+      const imageUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/customer/image-urls/${localStorage.getItem("id")}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -110,7 +110,7 @@ export default function CustomerProfile() {
   const fetchCustomerData = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get('http://localhost:3000/api/customer/profile', {
+      const response = await axios.get('https://tipnex-server.tipnex.com/api/customer/profile', {
         headers: { Authorization: `Bearer ${token}` }
       });
       localStorage.setItem("id", response.data.id)
@@ -186,7 +186,7 @@ export default function CustomerProfile() {
       const formData = new FormData();
       formData.append('customerPhotoFile', croppedImage, 'profile.jpg');
 
-      const response = await axios.post('http://localhost:3000/api/customer/update-profile-image', {
+      const response = await axios.post('https://tipnex-server.tipnex.com/api/customer/update-profile-image', {
         customerPhotoFile: {
           contentType: 'image/jpeg'
         },

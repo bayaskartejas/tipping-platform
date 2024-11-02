@@ -136,7 +136,7 @@ export default function ManageCoupons({onClose, onReappear, setShowCouponSuccess
     e.preventDefault()
     try {
       setFormData(prev => ({ ...prev, expirationDate: new Date(formData.expirationDate)}))
-      const response = await axios.post(`http://localhost:3000/api/coupon/create-coupon/:${localStorage.getItem("storeId")}`, formData, 
+      const response = await axios.post(`https://tipnex-server.tipnex.com/api/coupon/create-coupon/:${localStorage.getItem("storeId")}`, formData, 
     {
       headers: {'Authorization': `Bearer ${localStorage.getItem("token")}`}
     });

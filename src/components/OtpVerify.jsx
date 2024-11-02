@@ -45,7 +45,7 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
     setIsLoading(true);
 
     try {
-      const BASE_URL = 'http://localhost:3000/api/auth';
+      const BASE_URL = 'https://tipnex-server.tipnex.com/api/auth';
       let response;
 
       if (userType === "customer") {
@@ -54,7 +54,7 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
         response = await axios.post(`${BASE_URL}/verify-otp-owner`, { email, otp });
         localStorage.setItem("storeId", response.data.storeId)
       } else if (userType === "staff") {
-        response = await axios.post('http://localhost:3000/api/staff/verify', { email, otp, storeId });
+        response = await axios.post('https://tipnex-server.tipnex.com/api/staff/verify', { email, otp, storeId });
         localStorage.setItem("storeId", response.data.storeId)
       } else {
         throw new Error('Invalid user type');
@@ -90,7 +90,7 @@ const OTPVerify = ({ setShowOtpVerify, userType }) => {
     setError('');
     setOtpLoading(true);
     try {
-      await axios.post('http://localhost:3000/api/auth/resend-otp', { email, userType });
+      await axios.post('https://tipnex-server.tipnex.com/api/auth/resend-otp', { email, userType });
       setTimer(30);
       setOtpLoading(false);
       setCanResend(false);

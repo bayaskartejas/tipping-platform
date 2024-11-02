@@ -64,13 +64,13 @@ const ReviewCard = ({
 
       switch (type) {
         case 'restaurant':
-          endpoint = `http://localhost:3000/api/review/store/${storeId}`;
+          endpoint = `https://tipnex-server.tipnex.com/api/review/store/${storeId}`;
           break;
         case 'staff':       
-          endpoint = `http://localhost:3000/api/review/staff/${staffId}`;
+          endpoint = `https://tipnex-server.tipnex.com/api/review/staff/${staffId}`;
           break;
         case 'platform':
-          endpoint = 'http://localhost:3000/api/review/platform';
+          endpoint = 'https://tipnex-server.tipnex.com/api/review/platform';
           break;
       }
 

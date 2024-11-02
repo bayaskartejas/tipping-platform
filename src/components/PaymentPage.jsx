@@ -56,15 +56,15 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
     setError(null);
     try {
       console.log('Fetching store and helpers for storeId:', storeId);
-      const imageUrlsResponse = await axios.get(`http://localhost:3000/api/store/image-urls/${storeId}`);
+      const imageUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/image-urls/${storeId}`);
       setImageUrls(imageUrlsResponse.data);
-      const staffUrlsResponse = await axios.get(`http://localhost:3000/api/store/staff-image-urls/${storeId}`);
+      const staffUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/staff-image-urls/${storeId}`);
       setStaffUrls(staffUrlsResponse.data.staffPhotoUrls);
       console.log("StaffUrl", staffUrlsResponse.data.staffPhotoUrls);
-      const storeResponse = await axios.get(`http://localhost:3000/api/store/${storeId}`);
+      const storeResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/${storeId}`);
       console.log('Store data:', storeResponse.data);
       setStore(storeResponse.data);
-      const helpersResponse = await axios.get(`http://localhost:3000/api/staff/store/${storeId}`);
+      const helpersResponse = await axios.get(`https://tipnex-server.tipnex.com/api/staff/store/${storeId}`);
       console.log('Helpers data:', helpersResponse.data);
       setHelpers(helpersResponse.data);
     } catch (error) {
@@ -111,7 +111,7 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
   
     try {
       if (selectedCoupon) {
-        await axios.post(`http://localhost:3000/api/customer/update-coupon/${storeId}`, {
+        await axios.post(`https://tipnex-server.tipnex.com/api/customer/update-coupon/${storeId}`, {
           phone: phoneNumber,
           couponId: selectedCoupon.id
         });
@@ -206,7 +206,7 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
   const handleFetchCoupons = useCallback(async (phoneNumber) => {
     try {
       setPhoneNumber(phoneNumber)
-      const response = await axios.get(`http://localhost:3000/api/customer/get-coupon-info/${storeId}`, {
+      const response = await axios.get(`https://tipnex-server.tipnex.com/api/customer/get-coupon-info/${storeId}`, {
         params: { phone: phoneNumber }
       });
       setCoupons(response.data.coupons);
