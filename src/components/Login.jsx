@@ -70,16 +70,16 @@ export default function Login({ onLoginSuccess }) {
     e.preventDefault();
     setError('');
     try {
-      let endpoint = 'https://tipnex-server.tipnex/api/auth/login';
+      let endpoint = 'https://tipnex-server.tipnex.com/api/auth/login';
       switch (userType) {
         case 'owner':
-          endpoint = 'https://tipnex-server.tipnex/api/auth/login-store';
+          endpoint = 'https://tipnex-server.tipnex.com/api/auth/login-store';
           break;
         case 'staff':
-          endpoint = 'https://tipnex-server.tipnex/api/auth/login-staff';
+          endpoint = 'https://tipnex-server.tipnex.com/api/auth/login-staff';
           break;
         default:
-          endpoint = 'https://tipnex-server.tipnex/api/auth/login-customer';
+          endpoint = 'https://tipnex-server.tipnex.com/api/auth/login-customer';
       }
 
       const response = await axios.post(endpoint, { email, password });
