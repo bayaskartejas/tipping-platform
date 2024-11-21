@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Star, ChevronRight, IndianRupee, CreditCard, X, Ticket, ChevronDown, Receipt, Clock, MapPin, Phone } from 'lucide-react';
+import { ChevronLeft, Star, ChevronRight, IndianRupee, CreditCard, X, Ticket, ChevronDown, Receipt, Clock, MapPin, Phone, HomeIcon } from 'lucide-react';
 import axios from 'axios';
 import Slider from "react-slick";
 import CouponPopup from './CouponPopup';
@@ -250,8 +250,8 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
           onClick={onGoBack}
           className="flex items-center text-gray-600 hover:text-gray-800"
         >
-          <ChevronLeft size={20} />
-          <span className="ml-1 text-sm">Back</span>
+          <HomeIcon size={20}/>
+          <span className="ml-2 text-sm">Tipnex</span>
         </button>
 
         {/* Store Profile */}
