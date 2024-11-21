@@ -1,16 +1,24 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Star, ChevronRight, IndianRupee, CreditCard, X, Ticket, ChevronDown, Receipt } from 'lucide-react';
+import { ChevronLeft, Star, ChevronRight, IndianRupee, CreditCard, X, Ticket, ChevronDown, Receipt, Clock, MapPin, Phone } from 'lucide-react';
 import axios from 'axios';
-import default_person from "../assets/default-person.png";
 import Slider from "react-slick";
 import CouponPopup from './CouponPopup';
-import ReactSlider from 'react-slider';
+import { Slider as MUISlider, Tooltip, Paper } from '@mui/material';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function PaymentPage({setAmount, setTransaction_id, setPayment_mode, setReceivers_name, setDateAndTime}) {
+function ValueLabelComponent(props) {
+  const { children, value } = props;
+  return (
+    <Tooltip enterTouchDelay={0} placement="top" title={`₹${value}`}>
+      {children}
+    </Tooltip>
+  );
+}
+
+export default function PaymentPage({ setAmount, setTransaction_id, setPayment_mode, setReceivers_name, setDateAndTime }) {
   const { storeId } = useParams();
   const navigate = useNavigate();
   const [billAmount, setBillAmount] = useState('');
@@ -24,15 +32,11 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
   const [showGlow, setShowGlow] = useState(false);
   const sliderRef = useRef(null);
   const [imageUrls, setImageUrls] = useState("");
-  const [staffUrls, setStaffUrls] = useState();
+  const [staffUrls, setStaffUrls] = useState({});
   const [isPriceBreakupOpen, setIsPriceBreakupOpen] = useState(false);
-
-  // State variables for questions
-  const [showQuestions, setShowQuestions] = useState(true);
-  const [paidByCash, setPaidByCash] = useState(null);
-  const [wantToTip, setWantToTip] = useState(null);
-  const [wantToReview, setWantToReview] = useState(null);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [recommendedTip, setRecommendedTip] = useState(0);
+  const [processingCharge, setProcessingCharge] = useState(0);
+  const [savings, setSavings] = useState(0);
 
   // State variables for coupons
   const [showCouponPopup, setShowCouponPopup] = useState(false);
@@ -40,33 +44,50 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
   const [coupons, setCoupons] = useState([]);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [showCouponList, setShowCouponList] = useState(false);
-  const handleCloseCouponPopup = useCallback(() => {
-    setShowCouponPopup(false);
-  }, []);
 
-  useEffect(()=>{
-    localStorage.clear()
-  },[])
-  
   useEffect(() => {
+    localStorage.clear();
     fetchStoreAndHelpers();
   }, [storeId]);
+
+  useEffect(() => {
+    if (billAmount && selectedHelper) {
+      const amount = parseFloat(billAmount);
+      if (amount <= 500) {
+        setRecommendedTip(20);
+      } else if (amount <= 2000) {
+        setRecommendedTip(50);
+      } else {
+        setRecommendedTip(100);
+      }
+    } else {
+      setRecommendedTip(0);
+    }
+  }, [billAmount, selectedHelper]);
+
+  useEffect(() => {
+    const discount = calculateDiscount();
+    if (discount < 20) {
+      setProcessingCharge(0);
+    } else if (discount <= 50) {
+      setProcessingCharge(2);
+    } else {
+      setProcessingCharge(5);
+    }
+    setSavings(discount - processingCharge);
+  }, [selectedCoupon, billAmount]);
 
   const fetchStoreAndHelpers = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      console.log('Fetching store and helpers for storeId:', storeId);
       const imageUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/image-urls/${storeId}`);
       setImageUrls(imageUrlsResponse.data);
       const staffUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/staff-image-urls/${storeId}`);
       setStaffUrls(staffUrlsResponse.data.staffPhotoUrls);
-      console.log("StaffUrl", staffUrlsResponse.data.staffPhotoUrls);
       const storeResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/${storeId}`);
-      console.log('Store data:', storeResponse.data);
       setStore(storeResponse.data);
       const helpersResponse = await axios.get(`https://tipnex-server.tipnex.com/api/staff/store/${storeId}`);
-      console.log('Helpers data:', helpersResponse.data);
       setHelpers(helpersResponse.data);
     } catch (error) {
       console.error('Error fetching store and helpers:', error);
@@ -88,8 +109,8 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
     }
   };
 
-  const handleTipSliderChange = (value) => {
-    setTipAmount(value);
+  const handleTipSliderChange = (_, newValue) => {
+    setTipAmount(newValue);
     setCustomTip('');
   };
 
@@ -109,7 +130,7 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
       setTimeout(() => setShowGlow(false), 1000);
       return;
     }
-  
+
     try {
       if (selectedCoupon) {
         await axios.post(`https://tipnex-server.tipnex.com/api/customer/update-coupon/${storeId}`, {
@@ -117,9 +138,9 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
           couponId: selectedCoupon.id
         });
       }
-      localStorage.setItem("storeId", storeId)
-      localStorage.setItem("staffId", selectedHelper.id)
-      localStorage.setItem("phone", phoneNumber)
+      localStorage.setItem("storeId", storeId);
+      localStorage.setItem("staffId", selectedHelper.id);
+      localStorage.setItem("phone", phoneNumber);
       setTransaction_id("T" + (Math.floor(Math.random() * 100000000)));
       setPayment_mode("UPI");
       setReceivers_name(selectedHelper.name);
@@ -140,8 +161,49 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
     }
   };
 
-  const totalAmount = (parseFloat(billAmount) || 0) + (parseFloat(tipAmount) || 0) - calculateDiscount();
-  setAmount(totalAmount)
+  const totalAmount = (parseFloat(billAmount) || 0) + (parseFloat(tipAmount) || 0) - calculateDiscount() + processingCharge;
+  setAmount(totalAmount);
+
+  const handleUseCoupons = () => {
+    setShowCouponPopup(true);
+  };
+
+  const handleFetchCoupons = useCallback(async (phoneNumber) => {
+    try {
+      setPhoneNumber(phoneNumber);
+      const response = await axios.get(`https://tipnex-server.tipnex.com/api/customer/get-coupon-info/${storeId}`, {
+        params: { phone: phoneNumber }
+      });
+      setCoupons(response.data.coupons);
+      setShowCouponList(true);
+      setShowCouponPopup(false);
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        alert('User not found. Please create an account first.');
+      } else {
+        console.error('Error fetching coupons:', error);
+        alert('Failed to fetch coupons. Please try again.');
+      }
+    }
+  }, [storeId]);
+
+  const handleSelectCoupon = (coupon) => {
+    setSelectedCoupon(coupon);
+    setShowCouponList(false);
+  };
+
+  const handleRemoveCoupon = () => {
+    setSelectedCoupon(null);
+  };
+
+  const handleCloseCouponPopup = useCallback(() => {
+    setShowCouponPopup(false);
+  }, []);
+
+  const handleRecommendedTip = () => {
+    setTipAmount(recommendedTip);
+    setCustomTip('');
+  };
 
   const sliderSettings = {
     className: "center",
@@ -171,137 +233,6 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
     sliderRef.current.slickPrev();
   };
 
-  // Functions for handling questions
-  const handlePaidByCash = (answer) => {
-    setPaidByCash(answer);
-    if (answer) {
-      setCurrentQuestion(1);
-    } else {
-      setShowQuestions(false);
-    }
-  };
-
-  const handleWantToTip = (answer) => {
-    setWantToTip(answer);
-    if (answer) {
-      setShowQuestions(false);
-    } else {
-      setCurrentQuestion(2);
-    }
-  };
-
-  const handleWantToReview = (answer) => {
-    setWantToReview(answer);
-    if (answer) {
-      navigate("/review");
-    } else {
-      setShowQuestions(false);
-    }
-  };
-
-  // Functions for handling coupons
-  const handleUseCoupons = () => {
-    setShowCouponPopup(true);
-  };
-
-  const handleFetchCoupons = useCallback(async (phoneNumber) => {
-    try {
-      setPhoneNumber(phoneNumber)
-      const response = await axios.get(`https://tipnex-server.tipnex.com/api/customer/get-coupon-info/${storeId}`, {
-        params: { phone: phoneNumber }
-      });
-      setCoupons(response.data.coupons);
-      setShowCouponList(true);
-      setShowCouponPopup(false);
-    } catch (error) {
-      if (error.response && error.response.status === 404) {
-        alert('User not found. Please create an account first.');
-      } else {
-        console.error('Error fetching coupons:', error);
-        alert('Failed to fetch coupons. Please try again.');
-      }
-    }
-  }, [storeId]);
-
-  const handleSelectCoupon = (coupon) => {
-    setSelectedCoupon(coupon);
-    setShowCouponList(false);
-    setShowCouponPopup(false);
-  };
-
-  const handleRemoveCoupon = () => {
-    setSelectedCoupon(null);
-  };
-
-  const QuestionBox = ({ question, onYes, onNo }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="bg-white rounded-lg shadow-md p-6 mb-4"
-    >
-      <h3 className="text-lg font-medium text-gray-900 mb-4">{question}</h3>
-      <div className="flex justify-center space-x-4">
-        <button
-          onClick={() => onYes()}
-          className="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-        >
-          <ThumbsUp className="mr-2" size={18} />
-          Yes
-        </button>
-        <button
-          onClick={() => onNo()}
-          className="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-        >
-          <ThumbsDown className="mr-2" size={18} />
-          No
-        </button>
-      </div>
-    </motion.div>
-  );
-
-  const CouponList = () => (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.3 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-    >
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Available Coupons</h3>
-        {coupons.filter(coupon => parseFloat(billAmount) >= coupon.minimumPurchase).map((coupon) => (
-          <motion.div
-            key={coupon.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-gray-100 rounded-lg p-4 mb-4 cursor-pointer hover:bg-gray-200 transition-colors duration-200"
-            onClick={() => handleSelectCoupon(coupon)}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-lg font-semibold text-[#229799]">{coupon.title}</h4>
-                <p className="text-sm text-gray-600">{coupon.description}</p>
-              </div>
-              <Ticket className="text-[#229799]" size={24} />
-            </div>
-            <div className="mt-2 text-sm text-gray-700">
-              <p>Discount: {coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`}</p>
-              <p>Min. Purchase: ₹{coupon.minimumPurchase}</p>
-            </div>
-          </motion.div>
-        ))}
-        <button
-          onClick={() => setShowCouponList(false)}
-          className="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#229799] hover:bg-[#1b7b7d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#229799]"
-        >
-          Close
-        </button>
-      </div>
-    </motion.div>
-  );
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -317,103 +248,59 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
         {/* Back Button */}
         <button
           onClick={onGoBack}
-          className="flex items-center text-gray-600 hover:text-gray-800 transition-colors duration-200"
+          className="flex items-center text-gray-600 hover:text-gray-800"
         >
           <ChevronLeft size={20} />
           <span className="ml-1 text-sm">Back</span>
         </button>
 
-        {/* Profile Header */}
+        {/* Store Profile */}
         {store && (
-          <div className="bg-white rounded-xl shadow-sm p-4">
+          <Paper elevation={0} className="p-4 rounded-xl">
             <div className="flex items-center space-x-4">
               <img
                 src={imageUrls.logoUrl || '/placeholder.svg?height=100&width=100'}
                 alt={store.name}
-                className="w-16 h-16 rounded-full object-cover ring-2 ring-gray-100"
+                className="w-16 h-16 rounded-full object-cover"
               />
-              <div className="flex-1 min-w-0">
-                <h1 className="text-lg font-semibold text-gray-900 truncate">{store.name}</h1>
-                <p className="text-sm text-gray-500 truncate">{store.address}</p>
-                <div className="flex items-center mt-1">
-                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span className="ml-1 text-sm text-gray-600">
-                    {store.avgRating ? store.avgRating.toFixed(1) : 'N/A'}
-                  </span>
-                  <span className="mx-2 text-gray-300">•</span>
-                  <span className="text-sm text-gray-500">UPI: {store.ownerUpi}</span>
+              <div className="flex-1">
+                <h1 className="text-xl font-semibold">{store.name}</h1>
+                <div className="flex items-center text-sm text-gray-500 mt-1">
+                  <MapPin size={16} className="mr-1" />
+                  <span className="truncate">{store.address}</span>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Main Payment Card */}
-        <div className="bg-white rounded-xl shadow-sm p-4 space-y-4">
-          {/* Bill Amount Input */}
-          <div>
-            <label htmlFor="billAmount" className="text-sm font-medium text-gray-700">
-              Bill Amount
-            </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <IndianRupee className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type="number"
-                name="billAmount"
-                id="billAmount"
-                className="border-2 block w-full pl-10 pr-12 py-2 sm:text-sm border-gray-200 rounded-lg focus:ring-teal-500 focus:border-teal-500"
-                placeholder="0.00"
-                value={billAmount}
-                onChange={handleBillAmountChange}
-              />
-            </div>
-          </div>
-
-          {/* Tip Slider */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Tip Amount: ₹{tipAmount}
-            </label>
-            <ReactSlider
-              className="w-full h-2 mt-10 bg-gray-200 rounded-md"
-              thumbClassName="w-6 h-6 bg-white border-2 border-teal-500 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 -mt-2"
-              trackClassName="h-2 bg-teal-500 rounded-md"
-              min={0}
-              max={100}
-              value={tipAmount}
-              onChange={handleTipSliderChange}
-              renderThumb={(props, state) => (
-                <div {...props}>
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-teal-500 text-white px-2 py-1 rounded text-xs whitespace-nowrap">
-                    ₹{state.valueNow}
+                <div className="flex items-center mt-1">
+                  <div className="flex items-center">
+                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                    <span className="ml-1 text-sm">{store.avgRating ? store.avgRating.toFixed(1) : 'N/A'}</span>
+                  </div>
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Clock size={16} className="mr-1" />
+                    <span>Open</span>
                   </div>
                 </div>
-              )}
+              </div>
+            </div>
+          </Paper>
+        )}
+
+        {/* Bill Amount */}
+        <Paper elevation={0} className="p-4 rounded-xl">
+          <label className="text-sm font-medium text-gray-700">Bill Amount</label>
+          <div className="mt-2 relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+              <IndianRupee className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="number"
+              value={billAmount}
+              onChange={handleBillAmountChange}
+              className="block w-full pl-10 pr-3 py-3 text-lg border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500"
+              placeholder="0.00"
             />
           </div>
-
-          {/* Custom Tip Input */}
-          <div>
-            <label htmlFor="customTip" className="text-sm font-medium text-gray-700">
-              Custom Tip
-            </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <IndianRupee className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type="number"
-                name="customTip"
-                id="customTip"
-                className="border-2 block w-full pl-10 pr-12 py-2 sm:text-sm border-gray-200 rounded-lg focus:ring-teal-500 focus:border-teal-500"
-                placeholder="Enter custom amount"
-                value={customTip}
-                onChange={handleCustomTipChange}
-              />
-            </div>
-          </div>
+        </Paper>
 
           {/* Helper Selection */}
           {helpers.length > 0 && (
@@ -471,110 +358,190 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
               </div>
             </div>
           )}
+        {/* Tip Section - Only show if helper is selected */}
+        {selectedHelper && (
+          <Paper elevation={0} className="p-4 rounded-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium">Tip Amount</h3>
+              <span className="text-teal-600">₹{tipAmount}</span>
+            </div>
+            
+            <MUISlider
+              value={tipAmount}
+              onChange={handleTipSliderChange}
+              valueLabelDisplay="auto"
+              components={{
+                ValueLabel: ValueLabelComponent,
+              }}
+              step={5}
+              marks
+              min={0}
+              max={100}
+              sx={{
+                color: '#0D9488',
+                '& .MuiSlider-thumb': {
+                  width: 28,
+                  height: 28,
+                  backgroundColor: '#fff',
+                  border: '2px solid currentColor',
+                  '&:hover': {
+                    boxShadow: '0 0 0 8px rgba(13, 148, 136, 0.16)',
+                  },
+                },
+                '& .MuiSlider-track': {
+                  height: 2,     
+                },
+                '& .MuiSlider-rail': {
+                  height: 4,
+                  opacity: 0.5,
+                  backgroundColor: '#bfdbfe',
+                },
+                '& .MuiSlider-mark': {
+                  backgroundColor: '#bfdbfe',
+                  height: 8,
+                  width: 20,
+                  '&.MuiSlider-markActive': {
+                    opacity: 1,
+                    backgroundColor: 'currentColor',
+                  },
+                },
+              }}
+            />
+            {recommendedTip > 0 && (
+  
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 flex justify-between border-2 p-2 rounded-md"
+              >
+                <div className='text-teal-800 font-medium'>Recommened Tip: </div>
+                <button
+                  onClick={handleRecommendedTip}
+                  className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-medium hover:bg-teal-200 transition-colors duration-200"
+                >
+                  ₹{recommendedTip}
+                </button>
+              </motion.div>
+            )}
 
-          {/* Coupon Button */}
+            <div className="mt-4">
+              <label className="text-sm font-medium text-gray-700">Custom Tip</label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                  <IndianRupee className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="number"
+                  value={customTip}
+                  onChange={handleCustomTipChange}
+                  className="block w-full pl-10 pr-3 py-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500"
+                  placeholder="Enter amount"
+                />
+              </div>
+            </div>
+          </Paper>
+        )}
+
+        {/* Coupon Section */}
+        <Paper elevation={0} className="p-4 rounded-xl">
           <button
             onClick={handleUseCoupons}
-            className="w-full py-2 px-4 border-2 border-teal-500 rounded-lg text-sm font-medium text-teal-600 hover:bg-teal-50 transition-colors duration-200"
+            className="w-full py-3 px-4 border-2 border-teal-500 rounded-lg text-teal-600 hover:bg-teal-50 transition-colors flex items-center justify-center"
           >
-            <Ticket className="inline-block w-4 h-4 mr-2" />
+            <Ticket className="w-5 h-5 mr-2" />
             Use Coupons
           </button>
 
-          {/* Selected Coupon */}
           {selectedCoupon && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="bg-teal-50 rounded-lg p-3 flex items-center justify-between"
+              className="mt-4 p-3 bg-teal-50 rounded-lg flex items-center justify-between"
             >
               <div>
-                <h4 className="text-sm font-medium text-teal-700">{selectedCoupon.title}</h4>
-                <p className="text-xs text-teal-600">Code: {selectedCoupon.couponCode}</p>
+                <h4 className="font-medium text-teal-700">{selectedCoupon.title}</h4>
+                <p className="text-sm text-teal-600">Code: {selectedCoupon.couponCode}</p>
               </div>
               <button
                 onClick={handleRemoveCoupon}
-                className="p-1 hover:bg-teal-100 rounded-full transition-colors duration-200"
+                className="p-2 hover:bg-teal-100 rounded-full"
               >
-                <X size={16} className="text-teal-700" />
+                <X size={20} className="text-teal-700" />
               </button>
             </motion.div>
           )}
+        </Paper>
 
-          {/* Price Breakup */}
-          <div className="border border-gray-100 rounded-lg overflow-hidden">
-            <button
-              onClick={() => setIsPriceBreakupOpen(!isPriceBreakupOpen)}
-              className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
-            >
-              <div className="flex items-center space-x-2">
-                <Receipt className="w-4 h-4 text-gray-500" />
-                <span className="font-medium text-gray-900">
-                  To Pay: ₹{totalAmount.toFixed(2)}
-                </span>
-              </div>
-              <motion.div
-                animate={{ rotate: isPriceBreakupOpen ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
+        {/* Payment Summary */}
+        <Paper elevation={0} className="rounded-xl overflow-hidden">
+          <div className="p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-2xl">₹{totalAmount.toFixed(2)}</span>
+              <button
+                onClick={() => setIsPriceBreakupOpen(!isPriceBreakupOpen)}
+                className="text-teal-600 hover:text-teal-700 text-sm font-medium"
               >
-                <ChevronDown className="w-5 h-5 text-gray-500" />
+                View Detailed Bill
+              </button>
+            </div>
+
+            {savings > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-sm text-teal-600"
+              >
+                ₹{savings.toFixed(2)} saved on the total!
               </motion.div>
-            </button>
-            
+            )}
+
             <AnimatePresence>
               {isPriceBreakupOpen && (
                 <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: 'auto' }}
-                  exit={{ height: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="space-y-2 text-sm border-t pt-4"
                 >
-                  <div className="p-4 space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Bill Amount</span>
+                    <span>₹{billAmount || 0}</span>
+                  </div>
+                  {selectedHelper && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Bill Amount</span>
-                      <span className="text-gray-900">₹{billAmount || 0}</span>
+                      <span className="text-gray-600">Tip Amount</span>
+                      <span>₹{tipAmount || 0}</span>
                     </div>
-                    {selectedCoupon && (
+                  )}
+                  {selectedCoupon && (
+                    <>
                       <div className="flex justify-between text-teal-600">
                         <span>Discount</span>
                         <span>-₹{calculateDiscount().toFixed(2)}</span>
                       </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Tip Amount</span>
-                      <span className="text-gray-900">₹{tipAmount || 0}</span>
-                    </div>
-                    <div className="pt-2 border-t flex justify-between font-medium">
-                      <span>Total Amount</span>
-                      <div>
-                        {selectedCoupon && (
-                          <span className="line-through text-gray-400 mr-2">
-                            ₹{(parseFloat(billAmount) + parseFloat(tipAmount)).toFixed(2)}
-                          </span>
-                        )}
-                        <span className="text-gray-900">₹{totalAmount.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </div>
+                      {processingCharge > 0 && (
+                        <div className="flex justify-between text-gray-600">
+                          <span>Processing Charge</span>
+                          <span>₹{processingCharge.toFixed(2)}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
+
+            <button
+              onClick={handlePayment}
+              disabled={totalAmount === 0 || (selectedHelper == null && helpers.length > 0)}
+              className={`w-full py-4 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-medium rounded-lg transition-colors flex items-center justify-center space-x-2 ${showGlow ? 'animate-pulse' : ''}`}
+            >
+              <CreditCard className="w-5 h-5" />
+              <span>Proceed to Pay</span>
+            </button>
           </div>
-
-          {/* Pay Button */}
-          <button
-            onClick={handlePayment}
-            disabled={totalAmount === 0 || (selectedHelper == null && helpers.length > 0)}
-            className="w-full py-3 px-4 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
-          >
-            <CreditCard className="w-5 h-5" />
-            <span>Pay ₹{totalAmount.toFixed(2)}</span>
-          </button>
-        </div>
+        </Paper>
       </div>
-
       {/* Popups */}
       <AnimatePresence>
         {showCouponPopup && (
@@ -586,6 +553,20 @@ export default function PaymentPage({setAmount, setTransaction_id, setPayment_mo
         )}
         {showCouponList && <CouponList />}
       </AnimatePresence>
+
+      <style jsx global>{`
+        .helper-main-swiper {
+          height: 300px;
+        }
+        .helper-thumb-swiper {
+          height: 100px;
+        }
+        .swiper-slide-thumb-active {
+          opacity: 1 !important;
+          border: 2px solid #0D9488;
+          border-radius: 0.5rem;
+        }
+      `}</style>
     </div>
   );
 }
