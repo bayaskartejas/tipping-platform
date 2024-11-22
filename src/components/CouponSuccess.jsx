@@ -66,7 +66,7 @@ export default function CouponSuccess({
               <CheckCircle 
                 sx={{ 
                   fontSize: 80, 
-                  color: '#229799',
+                  color: '#6d8ce7',
                   mb: 2
                 }} 
               />
@@ -78,7 +78,7 @@ export default function CouponSuccess({
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <Typography variant="h5" gutterBottom sx={{ color: '#229799', fontWeight: 600 }}>
+              <Typography variant="h5" gutterBottom sx={{ color: '#6d8ce7', fontWeight: 600 }}>
                 Coupon Created Successfully!
               </Typography>
             </motion.div>
@@ -121,8 +121,8 @@ export default function CouponSuccess({
                   startIcon={<ArrowBack />}
                   onClick={onBack}
                   sx={{ 
-                    borderColor: '#229799',
-                    color: '#229799',
+                    borderColor: '#6d8ce7',
+                    color: '#6d8ce7',
                     '&:hover': {
                       borderColor: '#1b7b7d',
                       bgcolor: 'rgba(34, 151, 153, 0.1)'
@@ -136,7 +136,7 @@ export default function CouponSuccess({
                   startIcon={<Add />}
                   onClick={onCreateAnother}
                   sx={{ 
-                    bgcolor: '#229799',
+                    bgcolor: '#6d8ce7',
                     '&:hover': {
                       bgcolor: '#1b7b7d'
                     }
@@ -160,7 +160,7 @@ export default function CouponSuccess({
                 width: 200,
                 height: 200,
                 borderRadius: '50%',
-                bgcolor: '#229799',
+                bgcolor: '#6d8ce7',
                 zIndex: 0
               }}
             />
@@ -176,7 +176,7 @@ export default function CouponSuccess({
                 width: 120,
                 height: 120,
                 borderRadius: '50%',
-                bgcolor: '#229799',
+                bgcolor: '#6d8ce7',
                 zIndex: 0
               }}
             />

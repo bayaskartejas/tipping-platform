@@ -26,19 +26,19 @@ const CouponPopup = React.memo(({ onClose, onFetchCoupons }) => {
           type="tel"
           value={phoneNumber}
           onChange={handlePhoneNumberChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#229799] focus:border-[#229799]"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#6d8ce7] focus:border-[#6d8ce7]"
           placeholder="Phone number"
         />
         <div className="mt-4 flex justify-end space-x-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#229799]"
+            className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6d8ce7]"
           >
             Cancel
           </button>
           <button
             onClick={handleFetchCoupons}
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#229799] hover:bg-[#1b7b7d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#229799]"
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#6d8ce7] hover:bg-[#1a3ba2] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6d8ce7]"
           >
             Fetch Coupons
           </button>
