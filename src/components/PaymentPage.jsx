@@ -246,8 +246,10 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
           centerPadding: "30px",
         }
       }
-    ]
+    ],
+    arrows: false // Remove default arrows
   };
+
 
   const nextSlide = () => {
     sliderRef.current.slickNext();
@@ -403,7 +405,7 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
 
           {selectedHelper && (
             <Paper elevation={0} className="p-4 rounded-xl">
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between">
                 <h3 className="text-base font-medium">
                   Tip Amount paying to{' '}
                   <span className="text-[#1a3ba2]">{selectedHelper.name}</span>
@@ -470,7 +472,7 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
               )}
 
               <div className="mt-4 grid grid-cols-5 gap-3">
-                <div className="col-span-3">
+                <div className="col-span-5">
                   <label className="text-sm font-medium text-[#1a3ba2]">Custom Tip</label>
                   <div className="mt-1 relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
@@ -485,19 +487,19 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
                     />
                   </div>
                 </div>
-                <div className="col-span-2">
-                  <label className="text-sm font-medium text-transparent">Coupons</label>
-                  <button
-                    onClick={handleUseCoupons}
-                    className="mt-1 w-full h-[38px] border border-[#1a3ba2] rounded-lg text-[#1a3ba2] hover:bg-[#6d8ce7]/10 transition-colors flex items-center justify-center"
-                  >
-                    <Ticket className="w-4 h-4 mr-1" />
-                    <span className="text-sm">Coupons</span>
-                  </button>
-                </div>
               </div>
             </Paper>
           )}
+          <div className="">
+            <label className="text-sm font-medium text-transparent">Coupons</label>
+            <button
+              onClick={handleUseCoupons}
+              className="w-full h-[38px] border border-[#1a3ba2] rounded-lg text-[#1a3ba2] hover:bg-[#6d8ce7]/10 transition-colors flex items-center justify-center"
+            >
+              <Ticket className="w-4 h-4 mr-1" />
+              <span className="text-sm"> Apply Coupons</span>
+            </button>
+          </div>
 
           {selectedCoupon && (
             <motion.div
@@ -541,38 +543,50 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
             </button>
           </div>
 
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {isPriceBreakupOpen && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="space-y-2 text-sm border-t pt-4"
+                transition={{
+                  height: { duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] },
+                  opacity: { duration: 0.3, ease: "easeInOut" }
+                }}
+                className="overflow-hidden"
               >
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Bill Amount</span>
-                  <span>₹{billAmount || 0}</span>
-                </div>
-                {selectedHelper && (
+                <motion.div
+                  initial={{ y: -20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -20, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
+                  className="space-y-2 text-sm border-t pt-4"
+                >
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Tip Amount</span>
-                    <span>₹{tipAmount || 0}</span>
+                    <span className="text-gray-600">Bill Amount</span>
+                    <span>₹{billAmount || 0}</span>
                   </div>
-                )}
-                {selectedCoupon && (
-                  <>
-                    <div className="flex justify-between text-[#1a3ba2]">
-                      <span>Discount</span>
-                      <span>-₹{calculateDiscount().toFixed(2)}</span>
+                  {selectedHelper && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Tip Amount</span>
+                      <span>₹{tipAmount || 0}</span>
                     </div>
-                    {processingCharge > 0 && (
-                      <div className="flex justify-between text-gray-600">
-                        <span>Processing Charge</span>
-                        <span>₹{processingCharge.toFixed(2)}</span>
+                  )}
+                  {selectedCoupon && (
+                    <>
+                      <div className="flex justify-between text-[#1a3ba2]">
+                        <span>Discount</span>
+                        <span>-₹{calculateDiscount().toFixed(2)}</span>
                       </div>
-                    )}
-                  </>
-                )}
+                      {processingCharge > 0 && (
+                        <div className="flex justify-between text-gray-600">
+                          <span>Processing Charge</span>
+                          <span>₹{processingCharge.toFixed(2)}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
