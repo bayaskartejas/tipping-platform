@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react'
 import { Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import './App.css'
-import MainLanding from './components/MainLanding'
-import HelperProfile from './components/HelperProfile'
-import CustomerProfile from './components/CustomerProfile'
-import OwnerProfile from './components/OwnerProfile'
-import PaymentPage from './components/PaymentPage'
-import Login from './components/Login'
-import ReviewPage from './components/ReviewPage'
-import PaymentSuccess from './components/PaymentSucess'
+import MainLanding from './code/pages/MainLanding'
+import HelperProfile from './code/pages/HelperProfile'
+import CustomerProfile from './code/pages/CustomerProfile'
+import OwnerProfile from './code/pages/OwnerProfile'
+import PaymentPage from './code/pages/PaymentPage'
+import Login from './code/pages/Login'
+import ReviewPage from './code/components/ReviewCard'
+import PaymentSuccess from './code/pages/PaymentSucess'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import night from "./assets/night.jpg"
-import CouponSuccess from './components/CouponSuccess'
-import PaymentUnsuccessful from './components/PaymentUnsuccessful'
+import CouponSuccess from './code/popups/CouponSuccess'
+import PaymentUnsuccessful from './code/pages/PaymentUnsuccessful'
 const theme = createTheme();
 
 

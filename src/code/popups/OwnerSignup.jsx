@@ -21,8 +21,8 @@ import {
   Paper
 } from '@mui/material';
 import { Camera, X, Loader2, Trash2, Save } from 'lucide-react';
-import { Signin2 } from './States';
-import { WarningAlert } from './Alerts';
+import { Signin2 } from '../States';
+import { WarningAlert } from '../components/Alerts';
 import Cropper from 'react-easy-crop';
 import { Show } from '@chakra-ui/react';
 

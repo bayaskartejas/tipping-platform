@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import Layout from './Layout';
-import Hero from './Hero';
-import Features from './Features';
-import FooterSection from './FooterSection';
-import HowItWorks from './HowItWorks';  
-import LoadingOverlay from './LoadingOverlay';
+import Layout from '../sections/Layout';
+import Hero from '../sections/Hero';
+import Features from '../sections/Features';
+import FooterSection from '../sections/FooterSection';
+import HowItWorks from '../sections/HowItWorks';  
+import LoadingOverlay from '../components/LoadingOverlay';
 function MainLanding() {
   
     return (

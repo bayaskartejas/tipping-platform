@@ -4,10 +4,10 @@ import WaiterSignup from './WaiterSignup';
 import OwnerSignup from './OwnerSignup';
 import CustomerSignup from './CustomerSignup';
 import OTPVerify from './OtpVerify';
-import Login from './Login';
+import Login from '../pages/Login';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { useNavigate } from 'react-router-dom';
-import { Signin2 } from './States';
+import { Signin2 } from '../States';
 
 const ProfileCard = ({ icon: Icon, title, description, onClick, isSelected }) => (
   <a href="#continue">

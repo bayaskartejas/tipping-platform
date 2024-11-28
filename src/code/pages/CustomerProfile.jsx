@@ -33,7 +33,7 @@ import { styled } from '@mui/material/styles';
 import { ArrowBack, CameraAlt, Visibility, VisibilityOff } from '@mui/icons-material';
 import Cropper from 'react-easy-crop';
 import { motion } from 'framer-motion';
-import LoadingOverlay from './LoadingOverlay';
+import LoadingOverlay from '../components/LoadingOverlay';
 import { useNavigate } from 'react-router-dom';
 
 const VisuallyHiddenInput = styled('input')({

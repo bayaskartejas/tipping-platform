@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Menu, X, ChevronDown, ScanQrCode } from 'lucide-react';
-import SignupModal from './SignupModal';
+import SignupModal from '../popups/SignupModal';
 import { useRecoilState } from 'recoil';
-import { Signin2 } from './States';
-import logo from "../assets/tipnex.png"
+import { Signin2 } from '../States';
+import logo from "../../assets/tipnex.png"
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,7 +26,7 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex items-center space-x-4">
-          <button onClick={() => setIsSignupModalOpen(true)} className="bg-[#6d8ce7] text-white px-4 py-2 duration-200 rounded-md hover:bg-[#1a3ba2]">
+          <button onClick={() => setIsSignupModalOpen(true)} className="bg-theme-col-2 text-white px-4 py-2 duration-200 rounded-md hover:bg-theme-col-1">
             Sign up for free!
           </button>
           <button onClick={()=>{setSignin(true)}} className="text-white hover:text-gray-300">Login</button> {/* Text is white */}

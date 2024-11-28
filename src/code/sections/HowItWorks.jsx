@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import sunset from "../assets/sunset.jpg";
+import sunset from "../../assets/sunset.jpg";
 import { motion } from 'framer-motion';
 
 function HowItWorks() {
@@ -89,7 +89,7 @@ function HowItWorks() {
       {/* Content on top of the overlay */}
       <div className="relative z-10 container mx-auto px-4">
         <h2 className="text-3xl md:text-5xl font-bold text-center mb-6 text-white">
-          How does <span className="text-[#229799]">cashless tipping</span> work?
+          How does <span className="text-theme-col-2">cashless tipping</span> work?
         </h2>
         <p className="text-center text-gray-200 mb-12 max-w-3xl mx-auto hidden sm:flex">
           If your business accepts tips, TipNex's cashless tipping platform is for you! Customers simply scan a
@@ -110,7 +110,7 @@ function HowItWorks() {
               transition={{ duration: 0.5 }}
             >
               <img src={step.image} alt={`${step.title} process`} className="w-full h-auto mb-4 rounded-lg shadow-lg" />
-              <h3 className="text-2xl font-bold text-[#229799] mb-2">{step.title}</h3>
+              <h3 className="text-2xl font-bold text-theme-col-2 mb-2">{step.title}</h3>
               <p className="text-center text-gray-200">{step.description}</p>
             </motion.div>
           ))}
@@ -120,7 +120,7 @@ function HowItWorks() {
             <div
               key={index}
               className={`h-2 w-2 rounded-full mx-1 ${
-                index === currentIndex ? 'bg-[#229799]' : 'bg-gray-400'
+                index === currentIndex ? 'bg-theme-col-2' : 'bg-gray-400'
               }`}
             />
           ))}

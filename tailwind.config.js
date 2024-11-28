@@ -11,6 +11,10 @@ export default {
         poppins: ["Poppins", "sans-serif"],
         sans: ['Helvetica', 'Arial', 'sans-serif'],
       },
+      colors: {
+        'theme-col-1': '#1a3ba2',
+        'theme-col-2': '#6d8ce7',
+      },
       keyframes: {
         popup: {
           "0%" : {transform: "scale(0.95)", opacity: "0"},

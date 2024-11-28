@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { ChevronLeft, LogOut } from 'lucide-react'
-import ProfileHeader from './ProfileHeader'
-import RatingAndReviews from './RatingAndReviews'
-import PerformanceGraph from './PerformanceGraph'
+import ProfileHeader from '../sections/ProfileHeader'
+import RatingAndReviews from '../components/RatingAndReviews'
+import PerformanceGraph from '../components/PerformanceGraph'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { Typography, Alert } from '@mui/material'
-import LoadingOverlay from './LoadingOverlay'
+import LoadingOverlay from '../components/LoadingOverlay'
 
 export default function HelperProfile({ onGoBack }) {
 const token = localStorage.getItem("token")

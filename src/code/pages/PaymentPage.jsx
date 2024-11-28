@@ -3,12 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Star, ChevronRight, IndianRupee, CreditCard, X, Ticket, ChevronDown, Receipt, Clock, MapPin, Phone, HomeIcon, UserMinus } from 'lucide-react';
 import axios from 'axios';
 import Slider from "react-slick";
-import CouponPopup from './CouponPopup';
+import CouponPopup from '../popups/CouponPopup';
 import { Slider as MUISlider, Tooltip, Paper } from '@mui/material';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from "../assets/tipnex.png"
+import logo from "../../assets/tipnex.png"
 
 function ValueLabelComponent(props) {
   const { children, value } = props;
@@ -483,7 +483,7 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
                       value={customTip}
                       onChange={handleCustomTipChange}
                       className="block w-full pl-8 pr-3 py-2 text-sm border-gray-200 rounded-lg focus:ring-2 focus:ring-[#1a3ba2] border"
-                      placeholder="Enter amount"
+                      placeholder="Enter amount"  
                     />
                   </div>
                 </div>

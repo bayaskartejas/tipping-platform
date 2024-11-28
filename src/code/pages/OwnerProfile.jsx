@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { ChevronLeft, Ticket, Edit2, LogOut } from 'lucide-react'
-import ProfileHeaderO from './ProfileHeaderO'
-import StaffPerformanceGraph from './StaffPerformanceGraph'
-import RestaurantReviews from './RestaurantReviews'
-import ManageCoupons from './ManageCoupons'
-import CouponSuccess from './CouponSuccess'
+import ProfileHeaderO from '../sections/ProfileHeaderO'
+import StaffPerformanceGraph from '../components/StaffPerformanceGraph'
+import RestaurantReviews from '../components/RestaurantReviews'
+import ManageCoupons from '../popups/ManageCoupons'
+import CouponSuccess from '../popups/CouponSuccess'
 import axios from 'axios'
 import { Loader2 } from 'lucide-react'
 import { 
@@ -15,7 +15,7 @@ import {
   Alert
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom'
-import LoadingOverlay from './LoadingOverlay'
+import LoadingOverlay from '../components/LoadingOverlay'
 
 export default function OwnerProfile({ onGoBack, user }) {
   const [showManageCoupons, setShowManageCoupons] = useState(false)

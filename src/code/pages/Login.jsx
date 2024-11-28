@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import photo from "../assets/signin.jpg"
+import photo from "../../assets/signin.jpg"
 import axios from 'axios';
 import {
   Box,

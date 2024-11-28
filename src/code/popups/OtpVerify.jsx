@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { X } from 'lucide-react';
-import { SuccessAlert } from './Alerts';
-import LoadingOverlay from './LoadingOverlay';
+import { SuccessAlert } from '../components/Alerts';
+import LoadingOverlay from '../components/LoadingOverlay';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 
 const OTPVerify = ({ setShowOtpVerify, userType }) => {

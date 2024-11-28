@@ -1,9 +1,9 @@
 import { X } from 'lucide-react';
-import { Signin2 } from './States';
+import { Signin2 } from '../States';
 import { useSetRecoilState } from 'recoil';
 import axios from 'axios';
 import { Loader2 } from 'lucide-react';
-import { WarningAlert } from './Alerts';
+import { WarningAlert } from '../components/Alerts';
 import { useState } from 'react'; // Import useState for managing form data
 import { TextField } from '@mui/material';
 

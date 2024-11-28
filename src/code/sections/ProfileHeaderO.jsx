@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import axios from 'axios'
 import { Edit2, Check, X, Camera, Edit } from 'lucide-react'
-import defaultPerson from "../assets/default-person.png"
+import defaultPerson from "../../assets/default-person.png"
 import { Loader2 } from 'lucide-react'
 
 

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { useSetRecoilState } from 'recoil';
-import { Signin2 } from './States';
+import { Signin2 } from '../States';
 import { Loader2 } from 'lucide-react';
-import { WarningAlert } from './Alerts';
+import { WarningAlert } from '../components/Alerts';
 import {
   Box,
   Button,

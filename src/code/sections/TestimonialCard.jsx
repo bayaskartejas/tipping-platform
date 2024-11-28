@@ -17,7 +17,7 @@ const TestimonialCard = ({ review, star }) => (
     </div>
     <p className="text-gray-600 mb-4 flex-grow">{review.text}</p>
     <div>
-      <p className="font-bold text-[#229799]">{review.name}</p>
+      <p className="font-bold text-theme-col-2">{review.name}</p>
       <p className="text-gray-500 text-sm">{review.title}</p>
     </div>
   </div>
@@ -138,7 +138,7 @@ const TestimonialSlider = () => {
   useEffect(() => {
     if (sliderRef.current) {
       sliderRef.current.scrollTo({
-        left: currentIndex * 336, // Adjust this based on your card width
+        left: currentIndex * 336, 
         behavior: 'smooth'
       });
     }
