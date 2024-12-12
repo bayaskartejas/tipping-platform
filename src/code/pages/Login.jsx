@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import photo from "../../assets/signin.jpg"
+import { login } from "../api"
 import axios from 'axios';
+import { useAuth } from '../../AuthContext';
 import {
   Box,
   Button,
@@ -52,6 +55,8 @@ const BackgroundImage = styled(Box)(({ theme }) => ({
 }));
 
 export default function Login({ onLoginSuccess }) {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -70,24 +75,19 @@ export default function Login({ onLoginSuccess }) {
     e.preventDefault();
     setError('');
     try {
-      let endpoint = 'https://tipnex-server.tipnex.com/api/auth/login';
+      let endpoint = '/auth/login';
       switch (userType) {
         case 'owner':
-          endpoint = 'https://tipnex-server.tipnex.com/api/auth/login-store';
+          endpoint = '/auth/login-store';
           break;
         case 'staff':
-          endpoint = 'https://tipnex-server.tipnex.com/api/auth/login-staff';
+          endpoint = '/auth/login-staff';
           break;
         default:
-          endpoint = 'https://tipnex-server.tipnex.com/api/auth/login-customer';
+          endpoint = '/auth/login-customer';
       }
-
-      const response = await axios.post(endpoint, { email, password });
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('storeId', response.data.user.storeId)
-      localStorage.setItem('role', response.data.user.role)
-      onLoginSuccess(response.data.user);
-      
+      const user = await login(endpoint, { email, password });
+      navigate(`/${user.role}`);
     } catch (error) {
       console.error('Login failed:', error);
       setError('Invalid email or password');
