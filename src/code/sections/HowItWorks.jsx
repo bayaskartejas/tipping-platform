@@ -29,7 +29,7 @@ function HowItWorks() {
     const startAutoSlide = () => {
       autoSlideInterval.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % steps.length);
-      }, 2500);
+      }, 10000);
     };
 
     const stopAutoSlide = () => {

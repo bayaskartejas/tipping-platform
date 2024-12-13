@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useSetRecoilState } from 'recoil';
+import { useStateContext } from '../context/StateContext';
 import axios from 'axios';
 import { 
   Button, 
@@ -21,7 +21,6 @@ import {
   Paper
 } from '@mui/material';
 import { Camera, X, Loader2, Trash2, Save } from 'lucide-react';
-import { Signin2 } from '../States';
 import { WarningAlert } from '../components/Alerts';
 import Cropper from 'react-easy-crop';
 import { Show } from '@chakra-ui/react';
@@ -112,7 +111,8 @@ export default function OwnerSignup({ setShowOwnerSignup, setShowOtpVerify, setU
 
   const fileInputRefLogo = useRef(null);
   const fileInputRefSelfie = useRef(null);
-  const setSignin = useSetRecoilState(Signin2);
+  const { state, dispatch } = useStateContext();
+  const setSignin = (value) => dispatch({ type: 'SET_SIGNIN2', payload: value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();

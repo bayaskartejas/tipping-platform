@@ -1,9 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import photo from "../../assets/signin.jpg"
-import { login } from "../api"
-import axios from 'axios';
-import { useAuth } from '../../AuthContext';
 import {
   Box,
   Button,
@@ -18,6 +13,8 @@ import {
 } from '@mui/material';
 import { styled, useTheme } from '@mui/material/styles';
 import { Store, Person, PersonOutline } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   '& .MuiToggleButtonGroup-grouped': {
@@ -35,9 +32,8 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   },
 }));
 
-
 const BackgroundImage = styled(Box)(({ theme }) => ({
-  backgroundImage: `url(${photo})`,
+  backgroundImage: 'url(https://source.unsplash.com/random?restaurant)',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   [theme.breakpoints.up('md')]: {
@@ -55,8 +51,6 @@ const BackgroundImage = styled(Box)(({ theme }) => ({
 }));
 
 export default function Login({ onLoginSuccess }) {
-  const { login } = useAuth();
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -64,6 +58,8 @@ export default function Login({ onLoginSuccess }) {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { login: authLogin } = useAuth();
+  const navigate = useNavigate();
 
   const handleUserTypeChange = (event, newUserType) => {
     if (newUserType !== null) {
@@ -86,8 +82,7 @@ export default function Login({ onLoginSuccess }) {
         default:
           endpoint = '/auth/login-customer';
       }
-      const user = await login(endpoint, { email, password });
-      navigate(`/${user.role}`);
+      await authLogin(endpoint, { email, password });
     } catch (error) {
       console.error('Login failed:', error);
       setError('Invalid email or password');

@@ -14,6 +14,8 @@ export default {
       colors: {
         'theme-col-1': '#1a3ba2',
         'theme-col-2': '#6d8ce7',
+        'gray-bg': '#E2E8F0',
+        
       },
       keyframes: {
         popup: {

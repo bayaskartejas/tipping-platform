@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Star, ChevronRight, IndianRupee, CreditCard, X, Ticket, ChevronDown, Receipt, Clock, MapPin, Phone, HomeIcon, UserMinus } from 'lucide-react';
+import { ChevronLeft, Star, IndianRupee, X, Ticket, Clock, MapPin, UserMinus } from 'lucide-react';
 import axios from 'axios';
 import Slider from "react-slick";
 import CouponPopup from '../popups/CouponPopup';
@@ -8,7 +8,9 @@ import { Slider as MUISlider, Tooltip, Paper } from '@mui/material';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from "../../assets/tipnex.png"
+import logo from "../../assets/tipnex.png";
+import { usePayment } from '../context/PaymentContext';
+import { useFetch } from '../context/FetchContext';
 
 function ValueLabelComponent(props) {
   const { children, value } = props;
@@ -19,7 +21,7 @@ function ValueLabelComponent(props) {
   );
 }
 
-export default function PaymentPage({ setAmount, setTransaction_id, setPayment_mode, setReceivers_name, setDateAndTime }) {
+export default function PaymentPage() {
   const { storeId } = useParams();
   const navigate = useNavigate();
   const [billAmount, setBillAmount] = useState('');
@@ -29,7 +31,7 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
   const [helpers, setHelpers] = useState([]);
   const [store, setStore] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
   const [showGlow, setShowGlow] = useState(false);
   const sliderRef = useRef(null);
   const [imageUrls, setImageUrls] = useState("");
@@ -44,8 +46,9 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
   const [coupons, setCoupons] = useState([]);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [showCouponList, setShowCouponList] = useState(false);
-
   const contentRef = useRef(null);
+  const { setAmount, setTransactionId, setPaymentMode, setReceiversName, setDateAndTime } = usePayment();
+  const { loading, error, setError, getStoreAndHelpers } = useFetch();
 
   useEffect(() => {
     localStorage.clear();
@@ -99,14 +102,11 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
     setIsLoading(true);
     setError(null);
     try {
-      const imageUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/image-urls/${storeId}`);
-      setImageUrls(imageUrlsResponse.data);
-      const staffUrlsResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/staff-image-urls/${storeId}`);
-      setStaffUrls(staffUrlsResponse.data.staffPhotoUrls);
-      const storeResponse = await axios.get(`https://tipnex-server.tipnex.com/api/store/${storeId}`);
-      setStore(storeResponse.data);
-      const helpersResponse = await axios.get(`https://tipnex-server.tipnex.com/api/staff/store/${storeId}`);
-      setHelpers(helpersResponse.data);
+      const { imageUrls, staffUrls, store, helpers } = await getStoreAndHelpers(storeId);
+      setImageUrls(imageUrls);
+      setStaffUrls(staffUrls);
+      setStore(store);
+      setHelpers(helpers);
     } catch (error) {
       console.error('Error fetching store and helpers:', error);
       setError('Failed to load data. Please try again.');
@@ -159,9 +159,9 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
       localStorage.setItem("storeId", storeId);
       localStorage.setItem("staffId", selectedHelper ? selectedHelper.id : null);
       localStorage.setItem("phone", phoneNumber);
-      setTransaction_id("T" + (Math.floor(Math.random() * 100000000)));
-      setPayment_mode("UPI");
-      setReceivers_name(selectedHelper ? selectedHelper.name : store.name);
+      setTransactionId("T" + (Math.floor(Math.random() * 100000000)));
+      setPaymentMode("UPI");
+      setReceiversName(selectedHelper ? selectedHelper.name : store.name);
       setDateAndTime(Date.now());
       navigate(`/payment-success/${storeId}`);
     } catch (error) {
@@ -247,16 +247,7 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
         }
       }
     ],
-    arrows: false // Remove default arrows
-  };
-
-
-  const nextSlide = () => {
-    sliderRef.current.slickNext();
-  };
-
-  const prevSlide = () => {
-    sliderRef.current.slickPrev();
+    arrows: false
   };
 
   if (isLoading) {
@@ -325,7 +316,7 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
               </div>
             </Paper>
           )}
-          
+
           {helpers.length > 0 && (
             <motion.div
               animate={{
@@ -351,19 +342,13 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
                 </AnimatePresence>
               </div>
               <div className="relative">
-                <button
-                  onClick={prevSlide}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white shadow-lg border border-gray-100"
-                >
-                  <ChevronLeft size={20} />
-                </button>
                 <Slider ref={sliderRef} {...sliderSettings}>
                   {helpers.map((helper) => (
                     <div key={helper.id} className="px-2">
                       <motion.div
                         className={`flex flex-col items-center p-3 rounded-xl transition-all duration-300 ${
-                          selectedHelper && selectedHelper.id === helper.id 
-                            ? 'scale-105 bg-[#6d8ce7]/10' 
+                          selectedHelper && selectedHelper.id === helper.id
+                            ? 'scale-105 bg-[#6d8ce7]/10'
                             : 'scale-95 opacity-60'
                         }`}
                         whileHover={{ scale: 1.05 }}
@@ -393,26 +378,31 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
                     </div>
                   ))}
                 </Slider>
+              </div>
+
+              <div className="mt-4">
                 <button
-                  onClick={nextSlide}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full bg-white shadow-lg border border-gray-100"
+                  onClick={handleUseCoupons}
+                  className="w-full h-[38px] border border-[#1a3ba2] rounded-lg text-[#1a3ba2] hover:bg-[#6d8ce7]/10 transition-colors flex items-center justify-center"
                 >
-                  <ChevronRight size={20} />
+                  <Ticket className="w-4 h-4 mr-1" />
+                  <span className="text-sm">Apply Coupons</span>
                 </button>
               </div>
             </motion.div>
           )}
 
           {selectedHelper && (
-            <Paper elevation={0} className="p-4 rounded-xl">
-              <div className="flex items-start justify-between">
+            <Paper elevation={0} className="p-4 rounded-xl mt-4">
+              <div className="flex items-start justify-between mb-4">
                 <h3 className="text-base font-medium">
-                  Tip Amount paying to{' '}
-                  <span className="text-[#1a3ba2]">{selectedHelper.name}</span>
+                  <span className="text-[#6d8ce7]">Tip Amount</span>{' '}
+                  <span className="text-[#1a3ba2]">paying to</span>{' '}
+                  <span className="text-[#1a3ba2] font-semibold">{selectedHelper.name}</span>
                 </h3>
                 <span className="text-[#1a3ba2]">₹{tipAmount}</span>
               </div>
-              
+
               <MUISlider
                 value={tipAmount}
                 onChange={handleTipSliderChange}
@@ -436,7 +426,7 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
                     },
                   },
                   '& .MuiSlider-track': {
-                    height: 2,     
+                    height: 2,
                   },
                   '& .MuiSlider-rail': {
                     height: 4,
@@ -471,35 +461,23 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
                 </motion.div>
               )}
 
-              <div className="mt-4 grid grid-cols-5 gap-3">
-                <div className="col-span-5">
-                  <label className="text-sm font-medium text-[#1a3ba2]">Custom Tip</label>
-                  <div className="mt-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
-                      <IndianRupee className="h-4 w-4 text-gray-400" />
-                    </div>
-                    <input
-                      type="number"
-                      value={customTip}
-                      onChange={handleCustomTipChange}
-                      className="block w-full pl-8 pr-3 py-2 text-sm border-gray-200 rounded-lg focus:ring-2 focus:ring-[#1a3ba2] border"
-                      placeholder="Enter amount"  
-                    />
+              <div className="mt-4">
+                <label className="text-sm font-medium text-[#1a3ba2]">Custom Tip</label>
+                <div className="mt-1 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                    <IndianRupee className="h-4 w-4 text-gray-400" />
                   </div>
+                  <input
+                    type="number"
+                    value={customTip}
+                    onChange={handleCustomTipChange}
+                    className="block w-full pl-8 pr-3 py-2 text-sm border-gray-200 rounded-lg focus:ring-2 focus:ring-[#1a3ba2] border"
+                    placeholder="Enter amount"
+                  />
                 </div>
               </div>
             </Paper>
           )}
-          <div className="">
-            <label className="text-sm font-medium text-transparent">Coupons</label>
-            <button
-              onClick={handleUseCoupons}
-              className="w-full h-[38px] border border-[#1a3ba2] rounded-lg text-[#1a3ba2] hover:bg-[#6d8ce7]/10 transition-colors flex items-center justify-center"
-            >
-              <Ticket className="w-4 h-4 mr-1" />
-              <span className="text-sm"> Apply Coupons</span>
-            </button>
-          </div>
 
           {selectedCoupon && (
             <motion.div
@@ -595,9 +573,9 @@ export default function PaymentPage({ setAmount, setTransaction_id, setPayment_m
 
       <AnimatePresence>
         {showCouponPopup && (
-          <CouponPopup 
-            onClose={handleCloseCouponPopup} 
-            onFetchCoupons={handleFetchCoupons} 
+          <CouponPopup
+            onClose={handleCloseCouponPopup}
+            onFetchCoupons={handleFetchCoupons}
             setPhoneNumber={setPhoneNumber}
           />
         )}

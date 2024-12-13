@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import { useSetRecoilState } from 'recoil';
-import { Signin2 } from '../States';
+import { useStateContext } from '../context/StateContext';
 import { Loader2 } from 'lucide-react';
-import { WarningAlert } from '../components/Alerts';
+import { Bounce, ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Box,
   Button,
@@ -18,11 +18,13 @@ import {
   IconButton,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
+import { warning } from 'framer-motion';
 
 const steps = ['Personal Info', 'Work Details', 'Create Password'];
 
 function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify, setUserType }) {
-  const setSignin = useSetRecoilState(Signin2);
+  const { state, dispatch } = useStateContext();
+  const setSignin = (value) => dispatch({ type: 'SET_SIGNIN2', payload: value });
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -39,10 +41,22 @@ function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify, setUserType }) {
     password: '',
     confirmPassword: '',
   });
-  const [showWarning, setWarning] = useState(false);
+  const [showWarning, setWarning] = useState(0);
   const [warningMessage, setWarningMessage] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
+
+  const notify = (message) => toast.error(message, {
+    position: "top-center",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+    transition: Bounce
+});
 
   useEffect(() => {
     validateStep();
@@ -88,8 +102,7 @@ function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify, setUserType }) {
   const handleSubmit = async () => {
     setLoading(true);
     if (formData.password !== formData.confirmPassword) {
-      setWarningMessage("Passwords do not match");
-      setWarning(true);
+      notify("Passwords do not match")
       setLoading(false);
       return;
     }
@@ -114,8 +127,7 @@ function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify, setUserType }) {
       setShowWaiterSignup(false);
       setUserType("staff");
     } catch (error) {
-      setWarning(true);
-      setWarningMessage(error.response?.data?.error || "An error occurred");
+      notify(error.response?.data?.error || "An error occurred")
     } finally {
       setLoading(false);
     }
@@ -306,11 +318,19 @@ function WaiterSignup({ setShowWaiterSignup, setShowOtpVerify, setUserType }) {
 
   return (
     <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, bgcolor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-      {showWarning && (
-        <Box sx={{ position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 1100, width: '100%', maxWidth: 'sm' }}>
-          <WarningAlert message={warningMessage} onClose={() => setWarning(false)} />
-        </Box>
-      )}
+          <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          transition={Bounce}
+       />
       <Paper sx={{ width: '100%', maxWidth: 400, p: 3, borderRadius: 2, maxHeight: '90vh', overflowY: 'auto' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" component="h2">Create Waiter Account</Typography>

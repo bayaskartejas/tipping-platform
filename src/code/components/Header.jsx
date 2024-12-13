@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { Menu, X, ChevronDown, ScanQrCode } from 'lucide-react';
 import SignupModal from '../popups/SignupModal';
-import { useRecoilState } from 'recoil';
-import { Signin2 } from '../States';
+import { useStateContext } from '../context/StateContext';
 import logo from "../../assets/tipnex.png"
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
-  const [signin, setSignin] = useRecoilState(Signin2)
+  const { state, dispatch } = useStateContext();
+
+  const signin = state.signin2;
+  const setSignin = (value) => dispatch({ type: 'SET_SIGNIN2', payload: value });
 
   return (
     // Added absolute positioning to overlay the header on the parallax background and made it transparent

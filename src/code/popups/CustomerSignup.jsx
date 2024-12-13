@@ -1,6 +1,5 @@
 import { X } from 'lucide-react';
-import { Signin2 } from '../States';
-import { useSetRecoilState } from 'recoil';
+import { useStateContext } from '../context/StateContext';
 import axios from 'axios';
 import { Loader2 } from 'lucide-react';
 import { WarningAlert } from '../components/Alerts';
@@ -8,7 +7,8 @@ import { useState } from 'react'; // Import useState for managing form data
 import { TextField } from '@mui/material';
 
 export default function CustomerSignup({ setShowCustomerSignup, setShowOtpVerify, setUserType }) {
-  const setSignin = useSetRecoilState(Signin2);
+  const { state, dispatch } = useStateContext();
+  const setSignin = (value) => dispatch({ type: 'SET_SIGNIN2', payload: value });
 
   // Define state to hold form input values
   const [firstName, setFirstName] = useState('');

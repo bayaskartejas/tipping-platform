@@ -4,10 +4,9 @@ import WaiterSignup from './WaiterSignup';
 import OwnerSignup from './OwnerSignup';
 import CustomerSignup from './CustomerSignup';
 import OTPVerify from './OtpVerify';
+import { useStateContext } from '../context/StateContext';
 import Login from '../pages/Login';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { useNavigate } from 'react-router-dom';
-import { Signin2 } from '../States';
 
 const ProfileCard = ({ icon: Icon, title, description, onClick, isSelected }) => (
   <a href="#continue">
@@ -38,8 +37,9 @@ const SignupModal = ({ isOpen, token, setToken, onClose }) => {
   const [showOwnerSignup, setShowOwnerSignup] = useState(false);
   const [showCustomerSignup, setShowCustomerSignup] = useState(false);
   const [showOtpVerify, setShowOtpVerify] = useState(false);
-  const signin = useRecoilValue(Signin2);
-  const setSignin = useSetRecoilState(Signin2);
+  const { state, dispatch } = useStateContext();
+  const signin = state.signin2;
+  const setSignin = (value) => dispatch({ type: 'SET_SIGNIN2', payload: value });
   const [userType, setUserType] = useState("");
   const navigate = useNavigate()
 
